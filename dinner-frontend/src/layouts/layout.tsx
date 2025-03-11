@@ -3,6 +3,8 @@ import Carouse from "@/components/Carouse";
 import Footer from "@/components/Footer";
 import Header from "@/components/Header";
 import Hero from "@/components/Hero";
+import DailyOffers from "@/components/DailyOffers";
+import Feedback from "@/components/Feedback";
 
 type Props = {
     children: React.ReactNode;
@@ -24,8 +26,9 @@ const Layout = ({ children }: Props) => {
             </div>
             <AboutofUs />
             <Carouse />
+            <DailyOffers />
+            <Feedback />
             <Footer />
-
         </div>
     )
 }

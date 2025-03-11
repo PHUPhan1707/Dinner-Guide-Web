@@ -1,6 +1,21 @@
+@import url('https://fonts.googleapis.com/css2?family=Bonheur+Royale&family=Inter:ital,wght@1,500&family=Newsreader:wght@500&display=swap');
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+.font-bonheur {
+    font-family: "Bonheur Royale", cursive;
+}
+
+.font-newsreader {
+    font-family: "Newsreader", serif;
+}
+
+.font-inter {
+    font-family: "Inter", sans-serif;
+    font-style: italic;
+    font-weight: 500;
+}
 
 @layer base {
   :root {

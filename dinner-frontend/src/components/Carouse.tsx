@@ -20,7 +20,7 @@ const Carouse = () => {
                 {/* Aligned Line + Star */}
                 <div className="flex justify-center items-center mt-2">
                     <hr className="border-t-2 border-yellow-500 w-48" />
-                    <span className="text-yellow-500 mx-2">★</span>
+                    <span className="text-yellow-500 mx-2">✦</span>
                     <hr className="border-t-2 border-yellow-500 w-48" />
                 </div>
             </div>
