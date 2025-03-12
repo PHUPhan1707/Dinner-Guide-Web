@@ -42,8 +42,8 @@ const AboutUs = () => {
             <section className="bg-[#0F172A] max-w-full mx-auto py-12 px-6 text-white">
                 <div className="grid md:grid-cols-2 gap-16">
                     <div>
-                        <h2 className="text-4xl font-bold mb-6">A grand vision</h2>
-                        <p className="text-gray-300 text-xl leading-relaxed">
+                        <h2 className="text-4xl font-bold mb-6" style={{fontFamily: 'Newsreader'}}>A grand vision</h2>
+                        <p className="text-gray-300 text-xl leading-relaxed" style={{fontFamily: 'Inter'}}>
                             Ho Chi Minh City's dynamic food scene blends bustling street stalls with fine dining. Our guide curates the best eats, from hidden gems to top restaurants, with expert recommendations, chef insights, and foodie tips for every craving—whether it's a quick bánh mì, a comforting phở, or an indulgent multi-course meal.
                         </p>
                     </div>
@@ -53,8 +53,8 @@ const AboutUs = () => {
                 <div className="grid md:grid-cols-2 gap-16 mt-16">
                     <img src={food2} alt="Fine dining" className="rounded-2xl shadow-lg w-full"/>
                     <div>
-                        <h2 className="text-4xl font-bold mb-6">A better way forward</h2>
-                        <p className="text-gray-300 text-xl leading-relaxed">
+                        <h2 className="text-4xl font-bold mb-6" style={{fontFamily: 'Newsreader'}}>A better way forward</h2>
+                        <p className="text-gray-300 text-xl leading-relaxed" style={{fontFamily: 'Inter'}}>
                             For the first time, a dedicated platform brings together honest reviews, expert insights, and exclusive features, all tailored for those who seek the most delightful meals in Ho Chi Minh City.
                             With our guide, every meal is an experience, every recommendation is a story, and every bite is a journey into the heart of Vietnam’s dynamic food culture.
                         </p>
@@ -63,8 +63,8 @@ const AboutUs = () => {
 
                 <div className="grid md:grid-cols-2 gap-16 mt-16">
                     <div>
-                        <h2 className="text-4xl font-bold mb-6">The journey continues</h2>
-                        <p className="text-gray-300 text-xl leading-relaxed">
+                        <h2 className="text-4xl font-bold mb-6" style={{fontFamily: 'Newsreader'}}>The journey continues</h2>
+                        <p className="text-gray-300 text-xl leading-relaxed" style={{fontFamily: 'Inter'}}>
                             Our mission is simple: to help you eat better, discover new favorites, and celebrate the incredible flavors of Ho Chi Minh City. Whether you’re a local exploring new spots or a traveler seeking the city's best eats, our guide is here to serve.
                         </p>
                     </div>
