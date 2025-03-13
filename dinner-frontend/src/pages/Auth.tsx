@@ -19,7 +19,7 @@ export default function Auth() {
 
             if (!isSignup) {
                 localStorage.setItem("token", data.token);
-                localStorage.setItem("username", data.username); // Lưu username
+                localStorage.setItem("username", data.user.username);
                 alert("Đăng nhập thành công!");
                 navigate("/");
             } else {

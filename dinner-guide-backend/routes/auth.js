@@ -105,20 +105,26 @@ router.post("/login", async (req, res) => {
   }
 });
 
-// Route cập nhật thông tin người dùng (yêu cầu xác thực)
 router.put("/update", authenticateToken, async (req, res) => {
   try {
     console.log("Dữ liệu nhận được từ client:", req.body);
 
-    const { username, email, newPassword, currentPassword } = req.body;
+    const { 
+      username, 
+      email, 
+      newPassword, 
+      currentPassword,
+      address,
+      phone,
+      city,
+      country 
+    } = req.body;
     
-    // Lấy user từ token thay vì từ email trong request body
     const user = await User.findOne({ where: { id: req.user.id } });
     if (!user) {
       return res.status(400).json({ message: "Người dùng không tồn tại!" });
     }
 
-    // Nếu muốn đổi mật khẩu, kiểm tra mật khẩu hiện tại
     if (newPassword) {
       if (!currentPassword) {
         return res.status(400).json({ 
@@ -137,13 +143,12 @@ router.put("/update", authenticateToken, async (req, res) => {
       user.password = hashedNewPassword;
     }
 
-    if (username) {
-      user.username = username;
-    }
-
-    if (email) {
-      user.email = email;
-    }
+    if (username) user.username = username;
+    if (email) user.email = email;
+    if (address) user.address = address;
+    if (phone) user.phone = phone;
+    if (city) user.city = city;
+    if (country) user.country = country;
 
     await user.save();
     
@@ -152,7 +157,11 @@ router.put("/update", authenticateToken, async (req, res) => {
       user: {
         id: user.id,
         username: user.username,
-        email: user.email
+        email: user.email,
+        address: user.address,
+        phone: user.phone,
+        city: user.city,
+        country: user.country
       }
     });
   } catch (error) {

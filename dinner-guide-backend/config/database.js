@@ -17,5 +17,9 @@ sequelize
   .authenticate()
   .then(() => console.log("✅ Kết nối MySQL thành công!"))
   .catch((err) => console.error("❌ Lỗi kết nối MySQL:", err));
+  sequelize
+  .sync({ alter: true }) // Tự động cập nhật bảng khi có thay đổi model
+  .then(() => console.log("✅ Cơ sở dữ liệu đã được đồng bộ!"))
+  .catch((err) => console.error("❌ Lỗi đồng bộ cơ sở dữ liệu:", err));
 
 module.exports = sequelize;
