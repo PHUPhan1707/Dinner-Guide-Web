@@ -1,4 +1,4 @@
-import React from "react";
+
 import { Link } from "react-router-dom";
 import diningLogo from "../assets/diningning-logo.png";
 import twitterLogo from "../assets/twitterlogo.png";

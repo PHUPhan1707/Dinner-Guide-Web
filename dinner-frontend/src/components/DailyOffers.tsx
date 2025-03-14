@@ -1,4 +1,4 @@
-import React from "react";
+
 import bgImage from "../assets/bg2.png"; // Import background image
 
 const DailyOffers = () => {

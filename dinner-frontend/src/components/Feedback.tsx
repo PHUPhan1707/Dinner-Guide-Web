@@ -1,4 +1,4 @@
-import React from "react";
+
 import avatar1 from "../assets/profile1.png";
 import avatar2 from "../assets/profile2.png";
 
