@@ -1,7 +1,7 @@
 import Layout from "./layouts/layout"
 import { Routes, Route, Navigate } from "react-router-dom"
-import HomePage from "./pages/HomePage";
-import Auth from "./pages/Auth";
+import HomePage from "./pages/Homepage/HomePage";
+import Auth from "./pages/Homepage/Auth";
 
 
 

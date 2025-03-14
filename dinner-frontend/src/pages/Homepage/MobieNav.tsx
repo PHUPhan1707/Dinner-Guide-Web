@@ -5,9 +5,9 @@ import {
     SheetDescription,
     SheetTitle,
     SheetTrigger,
-} from "./ui/sheet";
+} from "../../components/ui/sheet";
 import { Separator } from "@radix-ui/react-separator";
-import { Button } from "./ui/button";
+import { Button } from "../../components/ui/button";
 
 const MobileNav = () => {
     return (

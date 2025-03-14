@@ -1,9 +1,20 @@
+import bg from "@/assets/bg-home.png";
 import { Link } from "react-router-dom";
 
-const HomePage = () => {
+const Title = () => {
     return (
-        <div className="relative w-full min-h-screen-95px flex flex-col items-center justify-center text-center -mt-6">
-            {/* Subtitle - Moved ABOVE the main heading */}
+        <div
+            className="relative w-full min-h-screen flex flex-col items-center justify-center text-center -mt-6"
+            style={{
+                backgroundImage: `url(${bg})`,
+                backgroundSize: "cover",
+                backgroundPosition: "center",
+            }}
+        >
+            {/* Overlay to make text readable */}
+            <div className="absolute top-0 left-0 w-full h-full bg-black bg-opacity-50 -z-10"></div>
+
+            {/* Subtitle */}
             <span className="text-lg md:text-xl text-white tracking-wide mb-2">
                 FOOD REVIEWS CYCLES
             </span>
@@ -30,11 +41,11 @@ const HomePage = () => {
 
             {/* Button Wrapper with Longer Yellow Lines */}
             <div className="relative mt-8">
-                {/* Top and Bottom Yellow Lines (Extended Width) */}
+                {/* Top and Bottom Yellow Lines */}
                 <div className="absolute left-1/2 transform -translate-x-1/2 -top-4 w-64 md:w-80 h-[2px] bg-yellow-500"></div>
                 <div className="absolute left-1/2 transform -translate-x-1/2 -bottom-4 w-64 md:w-80 h-[2px] bg-yellow-500"></div>
 
-                {/* Button (Navigates to /restaurant) */}
+                {/* Button */}
                 <Link
                     to="/restaurant"
                     className="text-white font-semibold text-3xl md:text-4xl transition-all duration-300 hover:text-yellow-400"
@@ -47,4 +58,4 @@ const HomePage = () => {
     );
 };
 
-export default HomePage;
+export default Title;

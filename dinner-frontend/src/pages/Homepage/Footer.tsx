@@ -1,9 +1,9 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import diningLogo from "../assets/diningning-logo.png";
-import twitterLogo from "../assets/twitterlogo.png";
-import fbLogo from "../assets/fblogo.png";
-import insLogo from "../assets/inslogo.png";
+import diningLogo from "@/assets/diningning-logo.png";
+import twitterLogo from "@/assets/twitterlogo.png";
+import fbLogo from "@/assets/fblogo.png";
+import insLogo from "@/assets/inslogo.png";
 
 const Footer = () => {
     return (

@@ -1,35 +1,23 @@
-import AboutofUs from "@/components/AboutofUs";
-import Carouse from "@/components/Carouse";
-import Footer from "@/components/Footer";
-import Header from "@/components/Header";
-import Hero from "@/components/Hero";
-import DailyOffers from "@/components/DailyOffers";
-import Feedback from "@/components/Feedback";
+import Footer from "@/pages/Homepage/Footer";
+import Header from "@/pages/Homepage/Header";
 
 type Props = {
     children: React.ReactNode;
-
 };
 
 const Layout = ({ children }: Props) => {
     return (
-        <div>
-            <div className="flex flex-col min-h-screen">
+        <div className="relative flex flex-col min-h-screen">
+            {/* Header - Overlays Title */}
+            <Header />
 
-                <Header />
-                <Hero />
-                <div
-                    className="container mx-auto flex-1 py-10">
-                    {children}
-                </div>
+            {/* Main Content - Ensure no gap before footer */}
+            <div className="flex-1 relative z-0">{children}</div>
 
-            </div>
-            <AboutofUs />
-            <Carouse />
-            <DailyOffers />
-            <Feedback />
+            {/* Footer - Remove any gaps */}
             <Footer />
         </div>
-    )
-}
+    );
+};
+
 export default Layout;
