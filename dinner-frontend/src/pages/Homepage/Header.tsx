@@ -1,9 +1,10 @@
 import { Link } from "react-router-dom";
 import MobileNav from "./MobieNav";
 import logo from "@/assets/diningning-logo.png";
+import MainNav from "./MainNav";
 
 const Header = () => {
-    const isLoggedIn = !!localStorage.getItem("token");
+
 
     return (
         <div className="absolute top-0 left-0 w-full z-20">
@@ -17,11 +18,9 @@ const Header = () => {
                     <Link to="/about" className="hover:text-orange-500">About</Link>
                     <Link to="/restaurant" className="hover:text-orange-500">Restaurant</Link>
                     <Link to="/contact" className="hover:text-orange-500">Contact</Link>
-                    {isLoggedIn ? (
-                        <Link to="/profile" className="hover:text-orange-500">Profile</Link>
-                    ) : (
-                        <Link to="/auth" className="hover:text-orange-500">Sign In</Link>
-                    )}
+                    <div>
+                        <MainNav />
+                    </div>
                 </nav>
                 <div className="md:hidden">
                     <MobileNav />

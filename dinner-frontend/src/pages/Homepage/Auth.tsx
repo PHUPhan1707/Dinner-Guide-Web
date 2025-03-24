@@ -1,37 +1,35 @@
 import { useState } from "react";
-import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { registerUser, loginUser } from "@/api/UserApi";
 
 export default function Auth() {
     const [username, setUsername] = useState("");
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [isSignup, setIsSignup] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
     const navigate = useNavigate();
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        const url = `http://localhost:5000/${isSignup ? "register" : "login"}`; // Chắc chắn backend có route này
+        setIsLoading(true);
 
         try {
-            const payload = isSignup ? { username, email, password } : { email, password };
-            const { data } = await axios.post(url, payload);
-
-            if (!isSignup) {
-                localStorage.setItem("token", data.token);
-                localStorage.setItem("username", data.username); // Lưu username
-                alert("Đăng nhập thành công!");
-                navigate("/");
-            } else {
+            if (isSignup) {
+                await registerUser(username, email, password);
                 alert("Đăng ký thành công! Hãy đăng nhập.");
                 setIsSignup(false);
-            }
-        } catch (err) {
-            if (axios.isAxiosError(err) && err.response) {
-                alert("Lỗi: " + err.response.data.message);
             } else {
-                alert("Lỗi: " + err);
+                const { data } = await loginUser(email, password);
+                localStorage.setItem("token", data.token);
+                localStorage.setItem("username", data.user.username);
+                alert("Đăng nhập thành công!");
+                navigate("/");
             }
+        } catch (err: any) {
+            alert("Lỗi: " + (err.response?.data?.message || err.message));
+        } finally {
+            setIsLoading(false);
         }
     };
 
@@ -46,6 +44,7 @@ export default function Auth() {
                         value={username}
                         onChange={(e) => setUsername(e.target.value)}
                         className="border p-2"
+                        required
                     />
                 )}
                 <input
@@ -54,6 +53,7 @@ export default function Auth() {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     className="border p-2"
+                    required
                 />
                 <input
                     type="password"
@@ -61,9 +61,14 @@ export default function Auth() {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     className="border p-2"
+                    required
                 />
-                <button type="submit" className="bg-blue-500 text-white p-2 rounded">
-                    {isSignup ? "Đăng ký" : "Đăng nhập"}
+                <button
+                    type="submit"
+                    className="bg-blue-500 text-white p-2 rounded"
+                    disabled={isLoading}
+                >
+                    {isLoading ? "Đang xử lý..." : (isSignup ? "Đăng ký" : "Đăng nhập")}
                 </button>
             </form>
             <button onClick={() => setIsSignup(!isSignup)} className="mt-2 text-blue-500">

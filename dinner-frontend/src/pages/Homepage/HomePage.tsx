@@ -13,7 +13,7 @@ const Layout = ({ children }: Props) => {
     return (
         <div>
             <div className="flex flex-col min-h-screen">
-                {/* Remove the extra padding */}
+
                 <div className="container mx-auto flex-1">
                     {children}
                     <Title />
