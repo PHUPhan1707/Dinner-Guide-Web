@@ -1,9 +1,9 @@
-import ptc1 from "../assets/recpic1.jpg";
-import ptc2 from "../assets/recpic2.jpg";
-import shoppeLogo from "../assets/logo-shopee.png";
-import grabLogo from "../assets/logo-grab.png";
-import beLogo from "../assets/logo-be.png";
-import foodyLogo from "../assets/logo-foody.png";
+import ptc1 from "@/assets/recpic1.jpg";
+import ptc2 from "@/assets/recpic2.jpg";
+import shoppeLogo from "@/assets/logo-shopee.png";
+import grabLogo from "@/assets/logo-grab.png";
+import beLogo from "@/assets/logo-be.png";
+import foodyLogo from "@/assets/logo-foody.png";
 
 const AboutofUs = () => {
     return (

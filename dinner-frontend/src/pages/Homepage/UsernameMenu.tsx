@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import { CircleUserRound } from "lucide-react";
 import { Separator } from "@radix-ui/react-separator";
-import { Button } from "./ui/button";
+import { Button } from "../../components/ui/button";
 import { Link } from "react-router-dom";
 const UsernameMenu = () => {
     const [username, setUsername] = useState<string | null>(null);

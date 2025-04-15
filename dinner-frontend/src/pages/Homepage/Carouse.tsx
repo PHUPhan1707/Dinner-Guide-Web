@@ -1,10 +1,10 @@
 import { Carousel, CarouselContent, CarouselItem } from "@/components/ui/carousel";
 import Autoplay from "embla-carousel-autoplay";
 
-import landingImage from "../assets/landing-image.png";
-import ptc1 from "../assets/picture1.png";
-import ptc2 from "../assets/picture2.png";
-import ptc3 from "../assets/picture3.jpg";
+import landingImage from "@/assets/landing-image.png";
+import ptc1 from "@/assets/picture1.png";
+import ptc2 from "@/assets/picture2.png";
+import ptc3 from "@/assets/picture3.jpg";
 
 const Carouse = () => {
     return (
