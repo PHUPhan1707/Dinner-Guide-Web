@@ -19,8 +19,13 @@ Review.belongsTo(Restaurant, { foreignKey: 'restaurantId' });
 
 const syncDatabase = async () => {
   try {
-    await sequelize.sync({ force: false });
-    console.log("✅ Database synchronized");
+    // Temporarily using force: true to update the schema
+    await sequelize.sync({ force: true });
+    console.log("✅ Database synchronized and tables recreated");
+    
+    // After syncing, change this back to force: false
+    // You should change this back after the first successful sync
+    
   } catch (error) {
     console.error("❌ Database sync error:", error);
   }

@@ -7,6 +7,7 @@
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
+DROP TABLE IF EXISTS `Reservations`;
 CREATE TABLE `Reservations` (
   `id` int NOT NULL AUTO_INCREMENT,
   `userId` int NOT NULL,
@@ -24,8 +25,9 @@ CREATE TABLE `Reservations` (
   KEY `restaurantId` (`restaurantId`),
   CONSTRAINT `Reservations_ibfk_1` FOREIGN KEY (`userId`) REFERENCES `Users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `Reservations_ibfk_2` FOREIGN KEY (`restaurantId`) REFERENCES `Restaurants` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
+DROP TABLE IF EXISTS `Restaurants`;
 CREATE TABLE `Restaurants` (
   `id` int NOT NULL AUTO_INCREMENT,
   `name` varchar(255) NOT NULL,
@@ -42,8 +44,9 @@ CREATE TABLE `Restaurants` (
   `createdAt` datetime NOT NULL,
   `updatedAt` datetime NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
+DROP TABLE IF EXISTS `Reviews`;
 CREATE TABLE `Reviews` (
   `id` int NOT NULL AUTO_INCREMENT,
   `userId` int NOT NULL,
@@ -61,61 +64,31 @@ CREATE TABLE `Reviews` (
   CONSTRAINT `Reviews_ibfk_2` FOREIGN KEY (`restaurantId`) REFERENCES `Restaurants` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
+DROP TABLE IF EXISTS `Users`;
 CREATE TABLE `Users` (
   `id` int NOT NULL AUTO_INCREMENT,
   `username` varchar(255) NOT NULL,
   `email` varchar(255) NOT NULL,
   `password` varchar(255) NOT NULL,
-  `createdAt` datetime NOT NULL,
-  `updatedAt` datetime NOT NULL,
   `address` varchar(255) DEFAULT NULL,
   `phone` varchar(255) DEFAULT NULL,
-  `country` varchar(255) DEFAULT NULL,
   `city` varchar(255) DEFAULT NULL,
-  `role` varchar(255) NOT NULL DEFAULT 'user',
+  `country` varchar(255) DEFAULT NULL,
+  `role` enum('user','admin') NOT NULL DEFAULT 'user',
+  `isVerified` tinyint(1) NOT NULL DEFAULT '0',
+  `verificationCode` varchar(255) DEFAULT NULL,
+  `verificationCodeExpires` datetime DEFAULT NULL,
+  `createdAt` datetime NOT NULL,
+  `updatedAt` datetime NOT NULL,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `email` (`email`),
-  UNIQUE KEY `email_2` (`email`),
-  UNIQUE KEY `email_3` (`email`),
-  UNIQUE KEY `email_4` (`email`),
-  UNIQUE KEY `email_5` (`email`),
-  UNIQUE KEY `email_6` (`email`),
-  UNIQUE KEY `email_7` (`email`),
-  UNIQUE KEY `email_8` (`email`),
-  UNIQUE KEY `email_9` (`email`),
-  UNIQUE KEY `email_10` (`email`),
-  UNIQUE KEY `email_11` (`email`),
-  UNIQUE KEY `email_12` (`email`),
-  UNIQUE KEY `email_13` (`email`),
-  UNIQUE KEY `email_14` (`email`)
-) ENGINE=InnoDB AUTO_INCREMENT=24 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
-INSERT INTO `Reservations` (`id`, `userId`, `restaurantId`, `date`, `time`, `partySize`, `specialRequests`, `status`, `contactPhone`, `createdAt`, `updatedAt`) VALUES
-(1, 22, 1, '2023-12-31', '18:00:00', 4, 'Vui lòng chuẩn bị bàn gần cửa sổ', 'pending', '0987654321', '2025-03-20 11:58:59', '2025-03-20 11:58:59');
-INSERT INTO `Reservations` (`id`, `userId`, `restaurantId`, `date`, `time`, `partySize`, `specialRequests`, `status`, `contactPhone`, `createdAt`, `updatedAt`) VALUES
-(2, 22, 1, '2025-12-31', '18:00:00', 6, 'Vui lòng chuẩn bị bàn gần cửa sổ và một ghế cao cho trẻ em', 'pending', '0987654321', '2025-03-20 11:59:15', '2025-03-20 12:04:43');
-INSERT INTO `Reservations` (`id`, `userId`, `restaurantId`, `date`, `time`, `partySize`, `specialRequests`, `status`, `contactPhone`, `createdAt`, `updatedAt`) VALUES
-(3, 22, 1, '2025-12-31', '18:00:00', 4, 'Vui lòng chuẩn bị bàn gần cửa sổ', 'pending', '0987654321', '2025-03-20 12:00:35', '2025-03-20 12:00:35');
-
-INSERT INTO `Restaurants` (`id`, `name`, `description`, `address`, `phone`, `openingHours`, `cuisine`, `priceRange`, `imageUrl`, `latitude`, `longitude`, `isActive`, `createdAt`, `updatedAt`) VALUES
-(1, 'Nhà hàng Test (Đã cập nhật)', 'Nhà hàng chuyên các món ăn truyền thống Việt Nam', '123 Đường Lê Lợi, Quận 1, TP.HCM', '0123456789', '9:00 - 23:00', 'Việt Nam', '$$$', 'https://example.com/restaurant1.jpg', 10.7756, 106.702, 1, '2025-03-20 11:10:55', '2025-03-20 11:39:15');
-INSERT INTO `Restaurants` (`id`, `name`, `description`, `address`, `phone`, `openingHours`, `cuisine`, `priceRange`, `imageUrl`, `latitude`, `longitude`, `isActive`, `createdAt`, `updatedAt`) VALUES
-(2, 'Nhà hàng 333 Việt Nam', 'Nhà hàng chuyên các món ăn truyền thống Việt Nam', '123 Đường Lê Lợi, Quận 1, TP.HCM', '0123456789', NULL, 'Việt Nam', '$$', 'https://example.com/restaurant1.jpg', 10.7756, 106.702, 0, '2025-03-20 11:40:12', '2025-03-20 11:43:26');
-INSERT INTO `Restaurants` (`id`, `name`, `description`, `address`, `phone`, `openingHours`, `cuisine`, `priceRange`, `imageUrl`, `latitude`, `longitude`, `isActive`, `createdAt`, `updatedAt`) VALUES
-(3, 'Nhà hàng Hưng Nam', 'Nhà hàng chuyên các món ăn truyền thống Việt Nam', '123 Đường Lê Lợi, Quận 1, TP.HCM', '0123456789', NULL, 'Việt Nam', '$$', 'https://example.com/restaurant1.jpg', 10.7756, 106.702, 1, '2025-03-20 11:40:30', '2025-03-20 11:40:30');
+  UNIQUE KEY `email` (`email`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 
 
-INSERT INTO `Users` (`id`, `username`, `email`, `password`, `createdAt`, `updatedAt`, `address`, `phone`, `country`, `city`, `role`) VALUES
-(1, 'Tên mới', 'test@example.com', '$2b$10$m8rfAW8e.atn5C7fWgOL8OexvqADChYBbn65mTv0ztdDbnU3/nwT6', '2025-03-10 06:25:16', '2025-03-11 07:16:02', NULL, NULL, NULL, NULL, 'user');
-INSERT INTO `Users` (`id`, `username`, `email`, `password`, `createdAt`, `updatedAt`, `address`, `phone`, `country`, `city`, `role`) VALUES
-(19, 'Phan An Phu', 'test2@example.com', '$2b$10$yI9nIrYgm7ExHD6n5BcxFOnOJdENl4ly7x/DDroT1dCNhmrxMT31q', '2025-03-18 02:20:55', '2025-03-18 02:25:36', 'qewqweqwe', '0123456789', 'Việt Nam', 'Hồ Chí Minh', 'user');
-INSERT INTO `Users` (`id`, `username`, `email`, `password`, `createdAt`, `updatedAt`, `address`, `phone`, `country`, `city`, `role`) VALUES
-(20, 'Phan An Phú', 'test3@example.com', '$2b$10$djfkkCTByZzhbggNMx2eweFi9Rgf/SDATBXKRwWvz0nEcznfTzdl6', '2025-03-18 04:06:44', '2025-03-18 04:07:11', 'Long An', '9327667810', 'Vietnam', 'Long An', 'admin');
-INSERT INTO `Users` (`id`, `username`, `email`, `password`, `createdAt`, `updatedAt`, `address`, `phone`, `country`, `city`, `role`) VALUES
-(21, 'opapsidipiasd', 'test4@example.com', '$2b$10$djfkkCTByZzhbggNMx2eweFi9Rgf/SDATBXKRwWvz0nEcznfTzdl6', '2025-03-20 10:51:50', '2025-03-20 10:51:50', NULL, NULL, NULL, NULL, 'user'),
-(22, 'qhan1707', 'test21@example.com', '$2b$10$M71PSDslSqLHFhodPGlW/.ZvQBeIvrCrkSHgxuhZNhfqdHaW7f8Da', '2025-03-20 11:50:19', '2025-03-20 11:50:19', NULL, NULL, NULL, NULL, 'user'),
-(23, 'Phu1707', 'test222@example.com', '$2b$10$ViNw76nJElZRxGDVIU0.bucw.5BvFwtyy/vN/LSekqKZchvoqdNEO', '2025-04-21 10:19:11', '2025-04-21 10:19:11', NULL, NULL, NULL, NULL, 'user');
+
+INSERT INTO `Users` (`id`, `username`, `email`, `password`, `address`, `phone`, `city`, `country`, `role`, `isVerified`, `verificationCode`, `verificationCodeExpires`, `createdAt`, `updatedAt`) VALUES
+(1, 'thanh8461', 'thanhle280603@gmail.com', '$2b$10$6OVJexmlDwTCPjVteDnBFeW0eG1Naj.Nc6wUnefwoF/shAh0anvPm', NULL, NULL, NULL, NULL, 'user', 1, NULL, NULL, '2025-04-23 17:07:24', '2025-04-23 17:08:27');
 
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;

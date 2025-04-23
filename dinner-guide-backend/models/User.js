@@ -46,6 +46,19 @@ const User = sequelize.define(
       type: DataTypes.ENUM('user', 'admin'),
       allowNull: false,
       defaultValue: 'user',
+    },
+    isVerified: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false,
+      allowNull: false,
+    },
+    verificationCode: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    verificationCodeExpires: {
+      type: DataTypes.DATE,
+      allowNull: true,
     }
   },
   {

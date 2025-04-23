@@ -32,14 +32,11 @@ EXIT;
 
 - Connect lại với TablePlus và import the sql file
 
-
-
-
-5/ clone the backend source code:
-git clone https://github.com/dbn-minh/FruitManagement-BE.git
-cd FruitManagement-BE
-git switch master
-yarn
+5/ Truy cập backend:
+cd ./dinner-guide-backend
+Chạy:
+npm install -g yarn
+npm install nodemailer
 
 6/ Run using: 
 yarn start
