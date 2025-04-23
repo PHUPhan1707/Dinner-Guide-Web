@@ -62,35 +62,41 @@ const RestaurantPage = () => {
     }, [selectedCategory, sortOption]);
 
     return (
-        <div className="container bg-[#1e2328] mx-auto px-4 py-6">
-            <Title />
-
-            {/* Sorting Bar & Category Filter in One Row */}
-            <div className="flex items-start space-x-1">
-                {/* Category Filter */}
-                <CategoryFilter setSelectedCategory={setSelectedCategory} />
-
-                {/* Sorting Bar & Restaurant Grid in Column */}
-                <div className="flex-1">
-                    <SortingBar setSortOption={setSortOption} />
-
-                    {/* Loading and Error states */}
-                    {loading && (
-                        <div className="text-center py-10">
-                            <p className="text-gray-300">Loading restaurants...</p>
+        <div className="min-h-screen w-full bg-[#1E2328]">
+            <div className="w-full bg-[#1E2328] pt-24">
+                <Title />
+                
+                <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-8">
+                    {/* Sorting Bar & Category Filter in One Row */}
+                    <div className="flex flex-col md:flex-row gap-6">
+                        {/* Category Filter */}
+                        <div className="md:w-1/4">
+                            <CategoryFilter setSelectedCategory={setSelectedCategory} />
                         </div>
-                    )}
 
-                    {error && !loading && (
-                        <div className="text-center py-10">
-                            <p className="text-red-500">{error}</p>
+                        {/* Sorting Bar & Restaurant Grid in Column */}
+                        <div className="flex-1">
+                            <SortingBar setSortOption={setSortOption} />
+
+                            {/* Loading and Error states */}
+                            {loading && (
+                                <div className="text-center py-10">
+                                    <p className="text-gray-300">Loading restaurants...</p>
+                                </div>
+                            )}
+
+                            {error && !loading && (
+                                <div className="text-center py-10">
+                                    <p className="text-red-500">{error}</p>
+                                </div>
+                            )}
+
+                            {/* Restaurant Cards */}
+                            {!loading && !error && (
+                                <RestaurantCards restaurants={restaurants} />
+                            )}
                         </div>
-                    )}
-
-                    {/* Restaurant Cards */}
-                    {!loading && !error && (
-                        <RestaurantCards restaurants={restaurants} />
-                    )}
+                    </div>
                 </div>
             </div>
         </div>

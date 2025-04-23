@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { registerUser, loginUser } from "@/api/UserApi";
+import loginBg from "@/assets/login-bg.jpg";
 
 export default function Auth() {
     const [username, setUsername] = useState("");
@@ -17,63 +18,101 @@ export default function Auth() {
         try {
             if (isSignup) {
                 await registerUser(username, email, password);
-                alert("Đăng ký thành công! Hãy đăng nhập.");
+                alert("Register successfully! Please sign in.");
                 setIsSignup(false);
             } else {
                 const { data } = await loginUser(email, password);
                 localStorage.setItem("token", data.token);
                 localStorage.setItem("username", data.user.username);
-                alert("Đăng nhập thành công!");
+                alert("Succesfully log in!");
                 navigate("/");
             }
         } catch (err: any) {
-            alert("Lỗi: " + (err.response?.data?.message || err.message));
+            alert("Error: " + (err.response?.data?.message || err.message));
         } finally {
             setIsLoading(false);
         }
     };
 
     return (
-        <div className="flex flex-col items-center justify-center min-h-screen">
-            <h2 className="text-2xl font-bold">{isSignup ? "Đăng ký" : "Đăng nhập"}</h2>
-            <form onSubmit={handleSubmit} className="flex flex-col gap-2">
-                {isSignup && (
-                    <input
-                        type="text"
-                        placeholder="Tên đăng nhập"
-                        value={username}
-                        onChange={(e) => setUsername(e.target.value)}
-                        className="border p-2"
-                        required
-                    />
-                )}
-                <input
-                    type="email"
-                    placeholder="Email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    className="border p-2"
-                    required
-                />
-                <input
-                    type="password"
-                    placeholder="Mật khẩu"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    className="border p-2"
-                    required
-                />
-                <button
-                    type="submit"
-                    className="bg-blue-500 text-white p-2 rounded"
-                    disabled={isLoading}
-                >
-                    {isLoading ? "Đang xử lý..." : (isSignup ? "Đăng ký" : "Đăng nhập")}
-                </button>
-            </form>
-            <button onClick={() => setIsSignup(!isSignup)} className="mt-2 text-blue-500">
-                {isSignup ? "Đã có tài khoản? Đăng nhập" : "Chưa có tài khoản? Đăng ký"}
-            </button>
+        <div className="min-h-screen w-full relative flex items-center justify-center">
+            {/* Background Image */}
+            <div 
+                className="absolute inset-0 w-full h-full"
+                style={{
+                    backgroundImage: `url(${loginBg})`,
+                    backgroundSize: 'cover',
+                    backgroundPosition: 'center',
+                }}
+            />
+            
+            {/* Glass Effect Container */}
+            <div className="relative w-full max-w-[400px] mx-4">
+                <div className="backdrop-blur-md bg-black/40 p-12 rounded-lg shadow-lg border border-white/20 min-h-[420px] flex flex-col">
+                    {/* Form Header */}
+                    <h1 className="text-4xl font-[Newsreader] text-white text-center mb-10">
+                        {isSignup ? "Sign Up" : "Login"}
+                    </h1>
+                    
+                    {/* Auth Form */}
+                    <form onSubmit={handleSubmit} className="space-y-6 flex-grow flex flex-col">
+                        {isSignup && (
+                            <div className="relative">
+                                <input
+                                    type="text"
+                                    placeholder="Username"
+                                    value={username}
+                                    onChange={(e) => setUsername(e.target.value)}
+                                    className="w-full pb-2 bg-transparent border-b-2 border-white/50 text-white placeholder-white/60 focus:outline-none focus:border-white transition-colors font-[Inter] font-normal"
+                                    required
+                                />
+                            </div>
+                        )}
+                        
+                        <div className="relative">
+                            <input
+                                type="email"
+                                placeholder="Email"
+                                value={email}
+                                onChange={(e) => setEmail(e.target.value)}
+                                className="w-full pb-2 bg-transparent border-b-2 border-white/50 text-white placeholder-white/60 focus:outline-none focus:border-white transition-colors font-[Inter] font-normal"
+                                required
+                            />
+                        </div>
+
+                        <div className="relative">
+                            <input
+                                type="password"
+                                placeholder="Password"
+                                value={password}
+                                onChange={(e) => setPassword(e.target.value)}
+                                className="w-full pb-2 bg-transparent border-b-2 border-white/50 text-white placeholder-white/60 focus:outline-none focus:border-white transition-colors font-[Inter] font-normal"
+                                required
+                            />
+                        </div>
+
+                        <div className="flex-grow"></div>
+
+                        <button
+                            type="submit"
+                            disabled={isLoading}
+                            className="w-full bg-white hover:bg-white/90 text-black font-[Newsreader] py-3 px-4 rounded-full transition-colors duration-200 disabled:opacity-50"
+                        >
+                            {isLoading ? "Processing..." : (isSignup ? "Sign Up" : "Login")}
+                        </button>
+                    </form>
+
+                    {/* Toggle Auth Mode */}
+                    <button 
+                        onClick={() => setIsSignup(!isSignup)} 
+                        className="mt-4 text-white/90 hover:text-white transition-colors w-full text-center font-[Inter] font-normal"
+                    >
+                        {isSignup 
+                            ? "Already have an account? Login" 
+                            : <span>Don't have an account? <span className="text-white">Register</span></span>}
+                    </button>
+                </div>
+            </div>
         </div>
     );
 }
