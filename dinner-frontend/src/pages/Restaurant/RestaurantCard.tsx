@@ -10,11 +10,11 @@ type Props = {
 
 const RestaurantCard = ({ restaurant }: Props) => {
     return (
-        <div className="bg-white rounded-lg shadow-md overflow-hidden w-[300px]"> 
-            <img 
-                src={restaurant.image} 
-                alt={restaurant.name} 
-                className="w-full h-48 object-cover" 
+        <div className="bg-white rounded-lg shadow-md overflow-hidden w-[300px]">
+            <img
+                src={restaurant.image}
+                alt={restaurant.name}
+                className="w-full h-48 object-cover"
             />
             <div className="p-4">
                 <h3 className="text-xl font-semibold">{restaurant.name}</h3>
