@@ -17,6 +17,21 @@ export const getAllRestaurants = async () => {
     return axios.get(API_URL);
 };
 
+// Lấy danh sách các loại món ăn (cuisine) duy nhất
+export const getUniqueCuisines = async () => {
+    const response = await getAllRestaurants();
+    if (response.data) {
+        // Extract unique cuisine values from all restaurants
+        const cuisines = response.data
+            .map((restaurant: any) => restaurant.cuisine)
+            .filter((cuisine: string | null) => cuisine) // Remove null/undefined values
+            .filter((value: string, index: number, self: string[]) =>
+                self.indexOf(value) === index); // Remove duplicates
+        return cuisines;
+    }
+    return [];
+};
+
 // Lấy chi tiết nhà hàng
 export const getRestaurantById = async (id: string) => {
     return axios.get(`${API_URL}/${id}`);
