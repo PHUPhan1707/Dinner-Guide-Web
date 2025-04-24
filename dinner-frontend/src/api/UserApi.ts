@@ -41,5 +41,5 @@ export const updateUserProfile = async (userData: {
   currentPassword?: string;
 }) => {
   return axios.put(`${API_URL}/profile`, userData, getAuthHeader());
-};  
+};
 
