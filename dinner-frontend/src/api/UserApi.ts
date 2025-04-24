@@ -20,6 +20,10 @@ export const registerUser = async (
   return axios.post(`${API_URL}/register`, { username, email, password });
 };
 
+export const verifyEmail = async (email: string, code: string) => {
+  return axios.post(`${API_URL}/verify-email`, { email, code });
+};
+
 export const loginUser = async (email: string, password: string) => {
   return axios.post(`${API_URL}/login`, { email, password });
 };

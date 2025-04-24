@@ -2,8 +2,14 @@ const express = require("express");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 const User = require("../models/User");
+const { sendVerificationEmail } = require("../services/emailService");
 const router = express.Router();
-const SECRET_KEY = "your_secret_key";
+const JWT_SECRET = process.env.JWT_SECRET || "dinner-guide-secret-key-2024"; // Fallback value if not in env
+
+// Generate verification code
+const generateVerificationCode = () => {
+  return Math.floor(100000 + Math.random() * 900000).toString();
+};
 
 // Middleware xác thực token
 const authenticateToken = (req, res, next) => {
@@ -14,7 +20,7 @@ const authenticateToken = (req, res, next) => {
     return res.status(401).json({ message: "Không tìm thấy token!" });
   }
 
-  jwt.verify(token, SECRET_KEY, (err, user) => {
+  jwt.verify(token, JWT_SECRET, (err, user) => {
     if (err) {
       return res.status(403).json({ message: "Token không hợp lệ!" });
     }
@@ -28,27 +34,110 @@ router.post("/register", async (req, res) => {
   try {
     const { username, email, password } = req.body;
     
+    console.log("Registration attempt:", { username, email });
+    
     // Validate input
     if (!username || !email || !password) {
-      return res.status(400).json({ message: "Vui lòng điền đầy đủ thông tin!" });
+      return res.status(400).json({ message: "Please fill in all fields!" });
     }
 
     const existingUser = await User.findOne({ where: { email } });
     if (existingUser) {
-      return res.status(400).json({ message: "Email đã tồn tại!" });
+      return res.status(400).json({ message: "Email already exists!" });
     }
 
-    // Tạo user mới - password sẽ được hash tự động bởi hooks
+    // Generate verification code
+    const verificationCode = generateVerificationCode();
+    const verificationCodeExpires = new Date(Date.now() + 15 * 60 * 1000); // 15 minutes
+
+    console.log("Creating user with verification code:", verificationCode);
+
+    // Create unverified user
     const newUser = await User.create({ 
       username, 
       email, 
-      password 
+      password,
+      verificationCode,
+      verificationCodeExpires,
+      isVerified: false
     });
 
-    res.status(201).json({ message: "Đăng ký thành công!" });
+    console.log("User created successfully, sending verification email...");
+
+    // Send verification email
+    const emailSent = await sendVerificationEmail(email, verificationCode);
+    console.log("Email sending result:", emailSent);
+
+    if (!emailSent) {
+      // If email fails, still create the account but inform the user
+      return res.status(201).json({ 
+        message: "Account created but verification email failed to send. Please contact support.",
+        requiresVerification: true
+      });
+    }
+
+    res.status(201).json({ 
+      message: "Please check your email for the verification code.",
+      requiresVerification: true
+    });
   } catch (error) {
-    console.error("Lỗi đăng ký:", error);
-    res.status(500).json({ message: "Lỗi server!" });
+    console.error("Registration error details:", {
+      message: error.message,
+      stack: error.stack,
+      name: error.name
+    });
+    res.status(500).json({ message: "Server error!" });
+  }
+});
+
+// Route verify email
+router.post("/verify-email", async (req, res) => {
+  try {
+    const { email, code } = req.body;
+
+    const user = await User.findOne({ where: { email } });
+    if (!user) {
+      return res.status(400).json({ message: "User not found!" });
+    }
+
+    if (user.isVerified) {
+      return res.status(400).json({ message: "Email already verified!" });
+    }
+
+    if (!user.verificationCode || !user.verificationCodeExpires) {
+      return res.status(400).json({ message: "No verification code found!" });
+    }
+
+    if (Date.now() > user.verificationCodeExpires) {
+      // Generate new code if expired
+      const newCode = generateVerificationCode();
+      const newExpiry = new Date(Date.now() + 15 * 60 * 1000);
+      
+      user.verificationCode = newCode;
+      user.verificationCodeExpires = newExpiry;
+      await user.save();
+      
+      await sendVerificationEmail(email, newCode);
+      
+      return res.status(400).json({ 
+        message: "Verification code expired. A new code has been sent to your email." 
+      });
+    }
+
+    if (user.verificationCode !== code) {
+      return res.status(400).json({ message: "Invalid verification code!" });
+    }
+
+    // Verify user
+    user.isVerified = true;
+    user.verificationCode = null;
+    user.verificationCodeExpires = null;
+    await user.save();
+
+    res.json({ message: "Email verified successfully!" });
+  } catch (error) {
+    console.error("Verification error:", error);
+    res.status(500).json({ message: "Server error!" });
   }
 });
 
@@ -56,29 +145,37 @@ router.post("/register", async (req, res) => {
 router.post("/login", async (req, res) => {
   try {
     const { email, password } = req.body;
-    console.log("Login attempt - Email:", email);
-    console.log("Login attempt - Password:", password);
+
     // Validate input
     if (!email || !password) {
-      return res.status(400).json({ message: "Vui lòng điền đầy đủ thông tin!" });
+      return res.status(400).json({ message: "Please fill in all fields!" });
     }
 
     const user = await User.findOne({ where: { email } });
     if (!user) {
-      return res.status(400).json({ message: "Email không tồn tại!" });
+      return res.status(400).json({ message: "Email does not exist!" });
     }
 
-    if (!user.password) {
-      return res.status(500).json({ message: "Lỗi: Password bị null trong DB!" });
+    if (!user.isVerified) {
+      // If user exists but isn't verified, send new verification code
+      const newCode = generateVerificationCode();
+      const newExpiry = new Date(Date.now() + 15 * 60 * 1000);
+      
+      user.verificationCode = newCode;
+      user.verificationCodeExpires = newExpiry;
+      await user.save();
+      
+      await sendVerificationEmail(email, newCode);
+      
+      return res.status(403).json({ 
+        message: "Please verify your email first. A new verification code has been sent.",
+        requiresVerification: true
+      });
     }
 
-    console.log("Stored hashed password:", user.password);
-    
     const isMatch = await bcrypt.compare(password, user.password);
-    console.log("Password comparison result:", isMatch);
-
     if (!isMatch) {
-      return res.status(400).json({ message: "Mật khẩu không đúng!" });
+      return res.status(400).json({ message: "Invalid password!" });
     }
 
     const token = jwt.sign(
@@ -87,7 +184,7 @@ router.post("/login", async (req, res) => {
         email: user.email,
         username: user.username 
       },
-      SECRET_KEY,
+      JWT_SECRET,
       { expiresIn: "1h" }
     );
 
@@ -100,8 +197,8 @@ router.post("/login", async (req, res) => {
       }
     });
   } catch (error) {
-    console.error("Lỗi đăng nhập:", error);
-    res.status(500).json({ message: "Lỗi server!" });
+    console.error("Login error:", error);
+    res.status(500).json({ message: "Server error!" });
   }
 });
 
