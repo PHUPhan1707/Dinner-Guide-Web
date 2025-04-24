@@ -28,6 +28,7 @@ const Review = sequelize.define(
     comment: {
       type: DataTypes.TEXT,
       allowNull: true,
+      defaultValue: ""
     },
     visitDate: {
       type: DataTypes.DATEONLY,
@@ -36,12 +37,47 @@ const Review = sequelize.define(
     photos: {
       type: DataTypes.TEXT, // Lưu URLs của ảnh dưới dạng JSON string
       allowNull: true,
+      defaultValue: "[]",
       get() {
         const value = this.getDataValue('photos');
-        return value ? JSON.parse(value) : [];
+        if (!value) return [];
+        try {
+          return JSON.parse(value);
+        } catch (error) {
+          console.error("Lỗi parse JSON photos:", error);
+          return [];
+        }
       },
       set(value) {
-        this.setDataValue('photos', JSON.stringify(value));
+        if (!value) {
+          this.setDataValue('photos', "[]");
+        } else {
+          try {
+            this.setDataValue('photos', JSON.stringify(value));
+          } catch (error) {
+            console.error("Lỗi stringify photos:", error);
+            this.setDataValue('photos', "[]");
+          }
+        }
+      }
+    }
+  },
+  {
+    // Thêm hook toJSON để đảm bảo photos luôn là mảng
+    hooks: {
+      afterFind: (result) => {
+        if (!result) return result;
+        
+        if (Array.isArray(result)) {
+          result.forEach(instance => {
+            if (instance.photos === null || instance.photos === undefined) {
+              instance.photos = [];
+            }
+          });
+        } else if (result.photos === null || result.photos === undefined) {
+          result.photos = [];
+        }
+        return result;
       }
     }
   }

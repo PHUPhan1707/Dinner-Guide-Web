@@ -21,12 +21,16 @@ exports.getAllRestaurants = async (req, res) => {
 exports.getRestaurantById = async (req, res) => {
   try {
     const { id } = req.params;
+    console.log(`Getting restaurant with ID: ${id}`);
     
     const restaurant = await Restaurant.findByPk(id);
     
     if (!restaurant) {
+      console.log(`Restaurant with ID ${id} not found`);
       return res.status(404).json({ message: "Không tìm thấy nhà hàng!" });
     }
+    
+    console.log(`Found restaurant: ${restaurant.name}`);
     
     // Lấy đánh giá cho nhà hàng này
     const reviews = await Review.findAll({
@@ -40,18 +44,40 @@ exports.getRestaurantById = async (req, res) => {
       order: [['createdAt', 'DESC']]
     });
     
+    console.log(`Found ${reviews.length} reviews for restaurant`);
+    
     // Tính điểm đánh giá trung bình
     let averageRating = 0;
     if (reviews.length > 0) {
-      const sum = reviews.reduce((total, review) => total + review.rating, 0);
+      const sum = reviews.reduce((total, review) => {
+        console.log(`Review rating: ${review.rating}, type: ${typeof review.rating}`);
+        // Đảm bảo rating là số
+        const rating = parseInt(review.rating) || 0;
+        return total + rating;
+      }, 0);
       averageRating = (sum / reviews.length).toFixed(1);
+      console.log(`Average rating: ${averageRating} (sum: ${sum}, count: ${reviews.length})`);
     }
     
-    res.json({
-      ...restaurant.toJSON(),
-      reviews,
-      averageRating
+    // Tạo đối tượng response an toàn, không sử dụng spread operator
+    const restaurantData = restaurant.toJSON();
+    
+    // Xử lý reviews trước khi trả về
+    const safeReviews = reviews.map(review => {
+      const reviewJSON = review.toJSON();
+      // Đảm bảo photos là mảng
+      if (!reviewJSON.photos) reviewJSON.photos = [];
+      return reviewJSON;
     });
+    
+    const response = {
+      ...restaurantData,
+      reviews: safeReviews,
+      averageRating
+    };
+    
+    console.log(`Response prepared, returning data for ${restaurant.name}`);
+    res.json(response);
   } catch (error) {
     console.error("Lỗi lấy chi tiết nhà hàng:", error);
     res.status(500).json({ message: "Lỗi server!" });

@@ -14,7 +14,7 @@ const AppRoutes = () => {
                 path="/"
                 element={
                     <Layout>
-                        <HomePage children={undefined} />
+                        <HomePage />
                     </Layout>
                 }
             />

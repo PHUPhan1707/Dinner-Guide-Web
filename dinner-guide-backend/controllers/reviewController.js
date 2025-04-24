@@ -6,9 +6,11 @@ const User = require("../models/User");
 exports.getRestaurantReviews = async (req, res) => {
   try {
     const { restaurantId } = req.params;
+    console.log(`Getting reviews for restaurant ID: ${restaurantId}`);
     
     const restaurant = await Restaurant.findByPk(restaurantId);
     if (!restaurant) {
+      console.log(`Restaurant with ID ${restaurantId} not found`);
       return res.status(404).json({ message: "Không tìm thấy nhà hàng!" });
     }
     
@@ -23,7 +25,17 @@ exports.getRestaurantReviews = async (req, res) => {
       order: [['createdAt', 'DESC']]
     });
     
-    res.json(reviews);
+    console.log(`Found ${reviews.length} reviews for restaurant ${restaurant.name}`);
+    
+    // Xử lý reviews trước khi trả về
+    const safeReviews = reviews.map(review => {
+      const reviewJSON = review.toJSON();
+      // Đảm bảo photos là mảng
+      if (!reviewJSON.photos) reviewJSON.photos = [];
+      return reviewJSON;
+    });
+    
+    res.json(safeReviews);
   } catch (error) {
     console.error("Lỗi lấy đánh giá:", error);
     res.status(500).json({ message: "Lỗi server!" });
@@ -60,14 +72,20 @@ exports.createReview = async (req, res) => {
       });
     }
     
+    // Xử lý photos an toàn
+    let processedPhotos = [];
+    if (photos && Array.isArray(photos)) {
+      processedPhotos = photos;
+    }
+    
     // Tạo đánh giá mới
     const newReview = await Review.create({
       userId,
       restaurantId,
       rating,
-      comment,
-      visitDate,
-      photos
+      comment: comment || "",
+      visitDate: visitDate || null,
+      photos: processedPhotos
     });
     
     res.status(201).json({

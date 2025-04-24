@@ -1,6 +1,6 @@
 const jwt = require("jsonwebtoken");
 const User = require("../models/User");
-const SECRET_KEY = "your_secret_key";
+const SECRET_KEY = process.env.JWT_SECRET || "dinner-guide-secret-key-2024";
 
 const authenticateToken = (req, res, next) => {
   const authHeader = req.headers['authorization'];
