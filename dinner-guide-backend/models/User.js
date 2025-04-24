@@ -6,8 +6,8 @@ const User = sequelize.define(
   "User",
   {
     id: {
-      type: DataTypes.INTEGER,
-      autoIncrement: true,
+      type: DataTypes.UUID,
+      defaultValue: DataTypes.UUIDV4,
       primaryKey: true,
     },
     username: {
@@ -74,9 +74,7 @@ const User = sequelize.define(
         }
       },
     },
-    scopes: {
-      withPassword: { attributes: { include: ["password"] } }, // Lấy password khi cần
-    },
+    timestamps: true
   }
 );
 

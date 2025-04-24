@@ -5,20 +5,16 @@ const Review = sequelize.define(
   "Review",
   {
     id: {
-      type: DataTypes.INTEGER,
-      autoIncrement: true,
+      type: DataTypes.UUID,
+      defaultValue: DataTypes.UUIDV4,
       primaryKey: true,
     },
-    userId: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-    },
-    restaurantId: {
-      type: DataTypes.INTEGER,
+    content: {
+      type: DataTypes.TEXT,
       allowNull: false,
     },
     rating: {
-      type: DataTypes.INTEGER, // 1-5
+      type: DataTypes.INTEGER,
       allowNull: false,
       validate: {
         min: 1,
@@ -80,6 +76,9 @@ const Review = sequelize.define(
         return result;
       }
     }
+  },
+  {
+    timestamps: true
   }
 );
 

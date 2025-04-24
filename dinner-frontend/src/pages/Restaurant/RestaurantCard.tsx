@@ -2,7 +2,7 @@ import { useNavigate } from "react-router-dom";
 
 type Props = {
     restaurant: {
-        id: number;
+        id: string;
         name: string;
         image: string;
         location: string;

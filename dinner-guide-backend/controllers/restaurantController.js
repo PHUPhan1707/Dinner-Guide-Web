@@ -2,22 +2,22 @@ const Restaurant = require("../models/Restaurant");
 const Review = require("../models/Review");
 const User = require("../models/User");
 
-// Lấy danh sách nhà hàng
+// Get all restaurants
 exports.getAllRestaurants = async (req, res) => {
   try {
     const restaurants = await Restaurant.findAll({
       where: { isActive: true },
-      attributes: { exclude: ['createdAt', 'updatedAt'] }
+      attributes: { exclude: ['updatedAt'] }
     });
     
     res.json(restaurants);
   } catch (error) {
-    console.error("Lỗi lấy danh sách nhà hàng:", error);
-    res.status(500).json({ message: "Lỗi server!" });
+    console.error("Error fetching restaurants:", error);
+    res.status(500).json({ message: "Server error!" });
   }
 };
 
-// Lấy chi tiết nhà hàng kèm đánh giá
+// Get restaurant details with reviews
 exports.getRestaurantById = async (req, res) => {
   try {
     const { id } = req.params;
@@ -34,7 +34,7 @@ exports.getRestaurantById = async (req, res) => {
     
     // Lấy đánh giá cho nhà hàng này
     const reviews = await Review.findAll({
-      where: { restaurantId: id },
+      where: { RestaurantId: id },
       include: [
         {
           model: User,
@@ -79,70 +79,77 @@ exports.getRestaurantById = async (req, res) => {
     console.log(`Response prepared, returning data for ${restaurant.name}`);
     res.json(response);
   } catch (error) {
-    console.error("Lỗi lấy chi tiết nhà hàng:", error);
-    res.status(500).json({ message: "Lỗi server!" });
+    console.error("Error fetching restaurant details:", error);
+    res.status(500).json({ message: "Server error!" });
   }
 };
 
-// [ADMIN] Thêm nhà hàng mới
+// [ADMIN] Create new restaurant
 exports.createRestaurant = async (req, res) => {
   try {
     const {
       name,
-      description,
+      coverImage,
       address,
+      openTime,
+      closeTime,
+      email,
       phone,
-      openingHours,
+      description,
       cuisine,
       priceRange,
-      imageUrl,
       latitude,
       longitude
     } = req.body;
     
-    // Validate dữ liệu cơ bản
-    if (!name || !address) {
+    // Validate required fields
+    if (!name || !address || !coverImage || !openTime || !closeTime || !email || !phone || !description) {
       return res.status(400).json({ 
-        message: "Tên và địa chỉ nhà hàng là bắt buộc!" 
+        message: "All required fields must be provided!" 
       });
     }
     
     const newRestaurant = await Restaurant.create({
       name,
-      description,
+      coverImage,
       address,
+      openTime,
+      closeTime,
+      email,
       phone,
-      openingHours,
+      description,
       cuisine,
       priceRange,
-      imageUrl,
       latitude,
-      longitude
+      longitude,
+      ratingCount: 0
     });
     
     res.status(201).json({
-      message: "Thêm nhà hàng thành công!",
+      message: "Restaurant created successfully!",
       restaurant: newRestaurant
     });
   } catch (error) {
-    console.error("Lỗi thêm nhà hàng:", error);
-    res.status(500).json({ message: "Lỗi server!" });
+    console.error("Error creating restaurant:", error);
+    res.status(500).json({ message: "Server error!" });
   }
 };
 
-// [ADMIN] Cập nhật nhà hàng
+// [ADMIN] Update restaurant
 exports.updateRestaurant = async (req, res) => {
   try {
     const { id } = req.params;
     const {
       name,
-      description,
+      coverImage,
       address,
+      openTime,
+      closeTime,
+      email,
       phone,
-      openingHours,
+      description,
       cuisine,
       priceRange,
-      imageUrl,
       latitude,
       longitude,
       isActive
@@ -151,31 +158,34 @@ exports.updateRestaurant = async (req, res) => {
     const restaurant = await Restaurant.findByPk(id);
     
     if (!restaurant) {
-      return res.status(404).json({ message: "Không tìm thấy nhà hàng!" });
+      return res.status(404).json({ message: "Restaurant not found!" });
     }
     
-    // Cập nhật các trường
-    if (name !== undefined) restaurant.name = name;
-    if (description !== undefined) restaurant.description = description;
-    if (address !== undefined) restaurant.address = address;
-    if (phone !== undefined) restaurant.phone = phone;
-    if (openingHours !== undefined) restaurant.openingHours = openingHours;
-    if (cuisine !== undefined) restaurant.cuisine = cuisine;
-    if (priceRange !== undefined) restaurant.priceRange = priceRange;
-    if (imageUrl !== undefined) restaurant.imageUrl = imageUrl;
-    if (latitude !== undefined) restaurant.latitude = latitude;
-    if (longitude !== undefined) restaurant.longitude = longitude;
-    if (isActive !== undefined) restaurant.isActive = isActive;
+    // Update fields
+    const updates = {};
+    if (name !== undefined) updates.name = name;
+    if (coverImage !== undefined) updates.coverImage = coverImage;
+    if (address !== undefined) updates.address = address;
+    if (openTime !== undefined) updates.openTime = openTime;
+    if (closeTime !== undefined) updates.closeTime = closeTime;
+    if (email !== undefined) updates.email = email;
+    if (phone !== undefined) updates.phone = phone;
+    if (description !== undefined) updates.description = description;
+    if (cuisine !== undefined) updates.cuisine = cuisine;
+    if (priceRange !== undefined) updates.priceRange = priceRange;
+    if (latitude !== undefined) updates.latitude = latitude;
+    if (longitude !== undefined) updates.longitude = longitude;
+    if (isActive !== undefined) updates.isActive = isActive;
     
-    await restaurant.save();
+    await restaurant.update(updates);
     
     res.json({
-      message: "Cập nhật nhà hàng thành công!",
+      message: "Restaurant updated successfully!",
       restaurant
     });
   } catch (error) {
-    console.error("Lỗi cập nhật nhà hàng:", error);
-    res.status(500).json({ message: "Lỗi server!" });
+    console.error("Error updating restaurant:", error);
+    res.status(500).json({ message: "Server error!" });
   }
 };
 

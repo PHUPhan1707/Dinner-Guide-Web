@@ -5,6 +5,8 @@ import Auth from "./pages/Homepage/Auth";
 import RestaurantPage from "./pages/Restaurant/Restaurant"; // Import the new page
 import RestaurantDetail from "./pages/Restaurant/RestaurantDetail"; // Import restaurant detail page
 import UserProfilePage from "./pages/UserProfilePage";
+import AdminPage from "./pages/Admin/AdminPage";
+import RestaurantManagement from "./pages/Admin/RestaurantManagement";
 
 const AppRoutes = () => {
     return (
@@ -41,6 +43,10 @@ const AppRoutes = () => {
 
             {/* Authentication Page */}
             <Route path="/auth" element={<Auth />} />
+
+            {/* Admin Pages */}
+            <Route path="/admin" element={<AdminPage />} />
+            <Route path="/admin/restaurants" element={<RestaurantManagement />} />
 
             {/* User Profile Page (Example) */}
             <Route path="/user-profile" element={<UserProfilePage />} />

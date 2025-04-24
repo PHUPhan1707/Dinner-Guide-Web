@@ -5,17 +5,9 @@ const Reservation = sequelize.define(
   "Reservation",
   {
     id: {
-      type: DataTypes.INTEGER,
-      autoIncrement: true,
+      type: DataTypes.UUID,
+      defaultValue: DataTypes.UUIDV4,
       primaryKey: true,
-    },
-    userId: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-    },
-    restaurantId: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
     },
     date: {
       type: DataTypes.DATEONLY,
@@ -29,18 +21,30 @@ const Reservation = sequelize.define(
       type: DataTypes.INTEGER,
       allowNull: false,
     },
+    status: {
+      type: DataTypes.STRING(50),
+      allowNull: false,
+      defaultValue: 'pending'
+    },
+    UserId: {
+      type: DataTypes.UUID,
+      allowNull: true
+    },
+    RestaurantId: {
+      type: DataTypes.UUID,
+      allowNull: false
+    },
     specialRequests: {
       type: DataTypes.TEXT,
       allowNull: true,
-    },
-    status: {
-      type: DataTypes.ENUM('pending', 'confirmed', 'cancelled'),
-      defaultValue: 'pending',
     },
     contactPhone: {
       type: DataTypes.STRING,
       allowNull: true,
     }
+  },
+  {
+    timestamps: true
   }
 );
 
