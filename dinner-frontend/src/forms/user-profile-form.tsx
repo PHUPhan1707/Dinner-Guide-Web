@@ -8,6 +8,7 @@ import LoadingButton from "@/components/LoadingButton";
 import { useEffect, useState } from "react";
 import { getUserProfile, updateUserProfile } from "@/api/UserApi";
 import { toast } from "sonner";
+import { useNavigate } from "react-router-dom";
 
 const formSchema = z.object({
     email: z.string().email().optional(),
@@ -26,6 +27,7 @@ const UserProfileForm = () => {
     const [isLoading, setIsLoading] = useState(false);
     const [initialLoading, setInitialLoading] = useState(true);
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const navigate = useNavigate();
 
     const form = useForm<UserFormData>({
         resolver: zodResolver(formSchema),
@@ -108,16 +110,29 @@ const UserProfileForm = () => {
         <Form {...form}>
             <form
                 onSubmit={form.handleSubmit(onSubmit)}
-                className="space-y-4 bg-gray-100 rounded-lg md:p-10 max-w-3xl mx-auto mt-40 shadow-lg border border-gray-200"
+                className="space-y-4 bg-gray-100 rounded-lg md:p-6 max-w-2xl mx-auto mt-24 shadow-lg border border-gray-200"
             >
                 <div>
+                    <div className="flex justify-between items-center mb-2">
+                        <Button
+                            type="button"
+                            variant="outline"
+                            className="flex items-center gap-1"
+                            onClick={() => navigate("/")}
+                        >
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                <path d="M19 12H5M12 19l-7-7 7-7" />
+                            </svg>
+                            Back to Home
+                        </Button>
+                    </div>
                     <h2 className="text-2xl font-bold text-gray-800">User Profile Form</h2>
                     <FormDescription className="text-gray-600">
                         Please fill in your information to update your profile.
                     </FormDescription>
                 </div>
 
-                <div className="space-y-4">
+                <div className="space-y-3">
                     <FormField
                         control={form.control}
                         name="email"

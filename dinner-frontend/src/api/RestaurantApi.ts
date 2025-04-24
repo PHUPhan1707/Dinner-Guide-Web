@@ -20,6 +20,7 @@ export interface Restaurant {
   phone: string;
   description: string;
   menu: MenuItem[];
+  cuisine?: string;
 }
 
 // Add Authorization header with token
@@ -40,6 +41,21 @@ export const getAllRestaurants = () => {
 // Get a single restaurant (public)
 export const getRestaurant = (id: string) => {
   return axios.get(`${API_URL}/restaurants/${id}`);
+};
+
+// Get unique cuisines from all restaurants
+export const getUniqueCuisines = async () => {
+    const response = await getAllRestaurants();
+    if (response.data) {
+        // Extract unique cuisine values from all restaurants
+        const cuisines = response.data
+            .map((restaurant: Restaurant) => restaurant.cuisine)
+            .filter((cuisine: string | null) => cuisine) // Remove null/undefined values
+            .filter((value: string, index: number, self: string[]) =>
+                self.indexOf(value) === index); // Remove duplicates
+        return cuisines;
+    }
+    return [];
 };
 
 // [ADMIN] Create a new restaurant

@@ -21,12 +21,16 @@ exports.getAllRestaurants = async (req, res) => {
 exports.getRestaurantById = async (req, res) => {
   try {
     const { id } = req.params;
+    console.log(`Getting restaurant with ID: ${id}`);
     
     const restaurant = await Restaurant.findByPk(id);
     
     if (!restaurant) {
+      console.log(`Restaurant with ID ${id} not found`);
       return res.status(404).json({ message: "Restaurant not found!" });
     }
+    
+    console.log(`Found restaurant: ${restaurant.name}`);
     
     // Get reviews for this restaurant
     const reviews = await Review.findAll({
@@ -40,10 +44,40 @@ exports.getRestaurantById = async (req, res) => {
       order: [['createdAt', 'DESC']]
     });
     
-    res.json({
-      ...restaurant.toJSON(),
-      reviews
+    console.log(`Found ${reviews.length} reviews for restaurant`);
+    
+    // Calculate average rating
+    let averageRating = 0;
+    if (reviews.length > 0) {
+      const sum = reviews.reduce((total, review) => {
+        console.log(`Review rating: ${review.rating}, type: ${typeof review.rating}`);
+        // Ensure rating is a number
+        const rating = parseInt(review.rating) || 0;
+        return total + rating;
+      }, 0);
+      averageRating = (sum / reviews.length).toFixed(1);
+      console.log(`Average rating: ${averageRating} (sum: ${sum}, count: ${reviews.length})`);
+    }
+    
+    // Create safe response object
+    const restaurantData = restaurant.toJSON();
+    
+    // Process reviews before returning
+    const safeReviews = reviews.map(review => {
+      const reviewJSON = review.toJSON();
+      // Ensure photos is an array
+      if (!reviewJSON.photos) reviewJSON.photos = [];
+      return reviewJSON;
     });
+    
+    const response = {
+      ...restaurantData,
+      reviews: safeReviews,
+      averageRating
+    };
+    
+    console.log(`Response prepared, returning data for ${restaurant.name}`);
+    res.json(response);
   } catch (error) {
     console.error("Error fetching restaurant details:", error);
     res.status(500).json({ message: "Server error!" });

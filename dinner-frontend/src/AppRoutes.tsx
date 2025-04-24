@@ -2,9 +2,11 @@ import Layout from "./layouts/layout";
 import { Routes, Route, Navigate } from "react-router-dom";
 import HomePage from "./pages/Homepage/HomePage";
 import Auth from "./pages/Homepage/Auth";
-import RestaurantPage from "./pages/Restaurant/Restaurant"; // Import the new page
+import RestaurantPage from "./pages/Restaurant/Restaurant";
 import AdminPage from "./pages/Admin/AdminPage";
 import RestaurantManagement from "./pages/Admin/RestaurantManagement";
+import RestaurantDetail from "./pages/Restaurant/RestaurantDetail";
+import UserProfilePage from "./pages/UserProfilePage";
 
 const AppRoutes = () => {
     return (
@@ -29,6 +31,16 @@ const AppRoutes = () => {
                 }
             />
 
+            {/* Restaurant Detail Page */}
+            <Route
+                path="/restaurant/:id"
+                element={
+                    <Layout>
+                        <RestaurantDetail />
+                    </Layout>
+                }
+            />
+
             {/* Authentication Page */}
             <Route path="/auth" element={<Auth />} />
 
@@ -36,8 +48,8 @@ const AppRoutes = () => {
             <Route path="/admin" element={<AdminPage />} />
             <Route path="/admin/restaurants" element={<RestaurantManagement />} />
 
-            {/* User Profile Page (Example) */}
-            <Route path="/user-profile" element={<span>User profile PAGE</span>} />
+            {/* User Profile Page */}
+            <Route path="/user-profile" element={<UserProfilePage />} />
 
             {/* Redirect Unknown Routes to Home */}
             <Route path="*" element={<Navigate to="/" />} />
