@@ -1,6 +1,6 @@
 type Props = {
     restaurant: {
-        id: number;
+        id: string;
         name: string;
         image: string;
         location: string;
@@ -22,7 +22,7 @@ const RestaurantCard = ({ restaurant }: Props) => {
                 <div className="mt-2 flex items-center text-gray-600 text-base">
                     <span className="mr-2">💬 {restaurant.reviews}</span>
                     <button className="ml-auto px-3 py-1 border rounded hover:bg-gray-200">
-                        Lưu
+                        Save
                     </button>
                 </div>
             </div>

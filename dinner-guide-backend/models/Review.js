@@ -5,45 +5,33 @@ const Review = sequelize.define(
   "Review",
   {
     id: {
-      type: DataTypes.INTEGER,
-      autoIncrement: true,
+      type: DataTypes.UUID,
+      defaultValue: DataTypes.UUIDV4,
       primaryKey: true,
     },
-    userId: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-    },
-    restaurantId: {
-      type: DataTypes.INTEGER,
+    content: {
+      type: DataTypes.TEXT,
       allowNull: false,
     },
     rating: {
-      type: DataTypes.INTEGER, // 1-5
+      type: DataTypes.INTEGER,
       allowNull: false,
       validate: {
         min: 1,
         max: 5
       }
     },
-    comment: {
-      type: DataTypes.TEXT,
-      allowNull: true,
+    UserId: {
+      type: DataTypes.UUID,
+      allowNull: true
     },
-    visitDate: {
-      type: DataTypes.DATEONLY,
-      allowNull: true,
-    },
-    photos: {
-      type: DataTypes.TEXT, // Lưu URLs của ảnh dưới dạng JSON string
-      allowNull: true,
-      get() {
-        const value = this.getDataValue('photos');
-        return value ? JSON.parse(value) : [];
-      },
-      set(value) {
-        this.setDataValue('photos', JSON.stringify(value));
-      }
+    RestaurantId: {
+      type: DataTypes.UUID,
+      allowNull: false
     }
+  },
+  {
+    timestamps: true
   }
 );
 

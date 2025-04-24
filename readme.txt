@@ -32,15 +32,15 @@ EXIT;
 
 - Connect lại với TablePlus và import the sql file
 
-5/ Truy cập backend:
+5/ Truy cập frontend:
+cd ./dinner-guide-frontend
+npm install uuid @types/uuid
+
+6/ Truy cập backend:
 cd ./dinner-guide-backend
 Chạy:
 npm install -g yarn
 npm install nodemailer
-
-6/ Run using: 
+ 
+Mở backend:
 yarn start
-
-7/ Download PostMan to test API
--> Text Minh Doan the email to be invited to the collaboration,
- which have all the APIs listed for you to test

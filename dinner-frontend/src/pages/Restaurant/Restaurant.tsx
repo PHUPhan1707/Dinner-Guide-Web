@@ -3,15 +3,7 @@ import Title from "@/pages/Restaurant/ResTitle";
 import SortingBar from "@/pages/Restaurant/SortingBar";
 import CategoryFilter from "@/pages/Restaurant/CategoryFiller";
 import RestaurantCards from "@/pages/Restaurant/RestaurantCards";
-import { getAllRestaurants } from "@/api/RestaurantApi";
-
-type Restaurant = {
-    id: number;
-    name: string;
-    image: string;
-    location: string;
-    reviews: number;
-};
+import { getAllRestaurants, Restaurant } from "@/api/RestaurantApi";
 
 const RestaurantPage = () => {
     const [restaurants, setRestaurants] = useState<Restaurant[]>([]);
@@ -27,12 +19,12 @@ const RestaurantPage = () => {
                 const response = await getAllRestaurants();
 
                 // Transform the API response to match our Restaurant type
-                const formattedRestaurants = response.data.map((restaurant: any) => ({
-                    id: restaurant._id || restaurant.id,
+                const formattedRestaurants = response.data.map((restaurant: Restaurant) => ({
+                    id: restaurant.id,
                     name: restaurant.name,
-                    image: restaurant.imageUrl || "https://via.placeholder.com/300x200?text=No+Image",
+                    image: restaurant.coverImage,
                     location: restaurant.address,
-                    reviews: restaurant.reviewCount || 0,
+                    reviews: restaurant.ratingCount || 0,
                 }));
 
                 setRestaurants(formattedRestaurants);
@@ -59,7 +51,7 @@ const RestaurantPage = () => {
         };
 
         fetchRestaurants();
-    }, [selectedCategory, sortOption]);
+    }, []);
 
     return (
         <div className="min-h-screen w-full bg-[#1E2328]">

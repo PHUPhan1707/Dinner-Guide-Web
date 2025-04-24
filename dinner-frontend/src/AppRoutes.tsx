@@ -3,6 +3,8 @@ import { Routes, Route, Navigate } from "react-router-dom";
 import HomePage from "./pages/Homepage/HomePage";
 import Auth from "./pages/Homepage/Auth";
 import RestaurantPage from "./pages/Restaurant/Restaurant"; // Import the new page
+import AdminPage from "./pages/Admin/AdminPage";
+import RestaurantManagement from "./pages/Admin/RestaurantManagement";
 
 const AppRoutes = () => {
     return (
@@ -12,7 +14,7 @@ const AppRoutes = () => {
                 path="/"
                 element={
                     <Layout>
-                        <HomePage children={undefined} />
+                        <HomePage />
                     </Layout>
                 }
             />
@@ -29,6 +31,10 @@ const AppRoutes = () => {
 
             {/* Authentication Page */}
             <Route path="/auth" element={<Auth />} />
+
+            {/* Admin Pages */}
+            <Route path="/admin" element={<AdminPage />} />
+            <Route path="/admin/restaurants" element={<RestaurantManagement />} />
 
             {/* User Profile Page (Example) */}
             <Route path="/user-profile" element={<span>User profile PAGE</span>} />

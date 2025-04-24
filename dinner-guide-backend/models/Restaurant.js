@@ -5,40 +5,52 @@ const Restaurant = sequelize.define(
   "Restaurant",
   {
     id: {
-      type: DataTypes.INTEGER,
-      autoIncrement: true,
+      type: DataTypes.UUID,
+      defaultValue: DataTypes.UUIDV4,
       primaryKey: true,
     },
     name: {
       type: DataTypes.STRING,
       allowNull: false,
     },
-    description: {
-      type: DataTypes.TEXT,
-      allowNull: true,
+    coverImage: {
+      type: DataTypes.STRING(1000),
+      allowNull: false,
     },
     address: {
       type: DataTypes.STRING,
       allowNull: false,
     },
-    phone: {
-      type: DataTypes.STRING,
-      allowNull: true,
+    ratingCount: {
+      type: DataTypes.INTEGER,
+      defaultValue: 0,
     },
-    openingHours: {
+    openTime: {
+      type: DataTypes.STRING(10),
+      allowNull: false,
+    },
+    closeTime: {
+      type: DataTypes.STRING(10),
+      allowNull: false,
+    },
+    email: {
       type: DataTypes.STRING,
-      allowNull: true,
+      allowNull: false,
+    },
+    phone: {
+      type: DataTypes.STRING(20),
+      allowNull: false,
+    },
+    description: {
+      type: DataTypes.TEXT,
+      allowNull: false,
     },
     cuisine: {
       type: DataTypes.STRING,
       allowNull: true,
     },
     priceRange: {
-      type: DataTypes.STRING, // "$", "$$", "$$$", "$$$$"
-      allowNull: true,
-    },
-    imageUrl: {
-      type: DataTypes.STRING,
+      type: DataTypes.STRING(10),
       allowNull: true,
     },
     latitude: {
@@ -53,6 +65,9 @@ const Restaurant = sequelize.define(
       type: DataTypes.BOOLEAN,
       defaultValue: true,
     }
+  },
+  {
+    timestamps: true, // This enables createdAt and updatedAt
   }
 );
 

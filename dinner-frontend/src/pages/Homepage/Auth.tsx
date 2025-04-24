@@ -33,8 +33,18 @@ export default function Auth() {
                 }
                 localStorage.setItem("token", data.token);
                 localStorage.setItem("username", data.user.username);
-                alert("Successfully log in!");
-                navigate("/");
+                localStorage.setItem("user", JSON.stringify({
+                    ...data.user,
+                    isAdmin: email === 'admin@dinnerguide.com'
+                }));
+                
+                // Check if user is admin and redirect accordingly
+                if (email === 'admin@dinnerguide.com') {
+                    navigate("/admin");
+                } else {
+                    navigate("/");
+                }
+                alert("Successfully logged in!");
             }
         } catch (err: any) {
             alert("Error: " + (err.response?.data?.message || err.message));
