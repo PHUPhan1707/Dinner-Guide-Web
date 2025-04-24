@@ -23,41 +23,20 @@ Reservation.belongsTo(User, { foreignKey: 'UserId' });
 
 const syncDatabase = async () => {
   try {
-    // Disable foreign key checks before dropping tables
-    await sequelize.query('SET FOREIGN_KEY_CHECKS = 0');
+    // Sync tables in correct order (parent tables first)
+    await User.sync({ alter: true });
+    await Restaurant.sync({ alter: true });
 
-    // Drop tables in correct order (child tables first)
+    // Then sync child tables
     await Promise.all([
-      MenuItem.drop(),
-      Review.drop(),
-      Reservation.drop()
+      MenuItem.sync({ alter: true }),
+      Review.sync({ alter: true }),
+      Reservation.sync({ alter: true })
     ]);
 
-    // Then drop parent tables
-    await Promise.all([
-      Restaurant.drop(),
-      User.drop()
-    ]);
-
-    // Re-enable foreign key checks
-    await sequelize.query('SET FOREIGN_KEY_CHECKS = 1');
-
-    // Create tables in correct order (parent tables first)
-    await User.sync();
-    await Restaurant.sync();
-
-    // Then create child tables
-    await Promise.all([
-      MenuItem.sync(),
-      Review.sync(),
-      Reservation.sync()
-    ]);
-
-    console.log("✅ Database synchronized and tables recreated");
+    console.log("✅ Database synchronized successfully");
   } catch (error) {
     console.error("❌ Database sync error:", error);
-    // Re-enable foreign key checks in case of error
-    await sequelize.query('SET FOREIGN_KEY_CHECKS = 1').catch(console.error);
   }
 };
 

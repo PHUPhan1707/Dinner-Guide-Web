@@ -6,7 +6,7 @@ import RestaurantCards from "@/pages/Restaurant/RestaurantCards";
 import { getAllRestaurants } from "@/api/RestaurantApi";
 
 type Restaurant = {
-    id: number;
+    id: string;
     name: string;
     image: string;
     location: string;
@@ -31,7 +31,7 @@ const RestaurantPage = () => {
 
                 // Transform the API response to match our Restaurant type
                 const formattedRestaurants = response.data.map((restaurant: any) => ({
-                    id: restaurant._id || restaurant.id,
+                    id: String(restaurant._id || restaurant.id),
                     name: restaurant.name,
                     image: restaurant.imageUrl || "https://via.placeholder.com/300x200?text=No+Image",
                     location: restaurant.address,

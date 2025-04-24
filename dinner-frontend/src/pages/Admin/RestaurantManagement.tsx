@@ -3,6 +3,14 @@ import { useNavigate } from 'react-router-dom';
 import { FaPlus, FaEdit, FaTrash, FaImage } from 'react-icons/fa';
 import { Restaurant, MenuItem, getAllRestaurants, createRestaurant, updateRestaurant, deleteRestaurant } from '../../api/RestaurantApi';
 
+// Apply type assertion to fix the type error
+const IconFix = {
+  Plus: FaPlus as React.ComponentType<React.SVGAttributes<SVGElement>>,
+  Edit: FaEdit as React.ComponentType<React.SVGAttributes<SVGElement>>,
+  Trash: FaTrash as React.ComponentType<React.SVGAttributes<SVGElement>>,
+  Image: FaImage as React.ComponentType<React.SVGAttributes<SVGElement>>
+};
+
 const RestaurantManagement = () => {
   const navigate = useNavigate();
   const [restaurants, setRestaurants] = useState<Restaurant[]>([]);
@@ -16,7 +24,7 @@ const RestaurantManagement = () => {
   useEffect(() => {
     const token = localStorage.getItem('token');
     const user = localStorage.getItem('user');
-    
+
     if (!token || !user) {
       navigate('/auth');
       return;
@@ -68,7 +76,7 @@ const RestaurantManagement = () => {
   };
 
   const handleMenuItemChange = (id: string, field: keyof MenuItem, value: string | number) => {
-    setMenuItems(menuItems.map(item => 
+    setMenuItems(menuItems.map(item =>
       item.id === id ? { ...item, [field]: value } : item
     ));
   };
@@ -97,9 +105,9 @@ const RestaurantManagement = () => {
 
     try {
       // Validate required fields
-      if (!formData.name || !formData.address || !formData.openTime || 
-          !formData.closeTime || !formData.email || !formData.phone || 
-          !formData.description) {
+      if (!formData.name || !formData.address || !formData.openTime ||
+        !formData.closeTime || !formData.email || !formData.phone ||
+        !formData.description) {
         throw new Error('Please fill in all required fields');
       }
 
@@ -148,7 +156,7 @@ const RestaurantManagement = () => {
           }}
           className="bg-black text-white px-4 py-2 rounded-md hover:bg-zinc-800 flex items-center"
         >
-          <FaPlus className="mr-2" /> Add Restaurant
+          <IconFix.Plus className="mr-2" /> Add Restaurant
         </button>
       </div>
 
@@ -175,13 +183,13 @@ const RestaurantManagement = () => {
                     }}
                     className="bg-blue-500 text-white px-3 py-1 rounded-md hover:bg-blue-600 flex items-center"
                   >
-                    <FaEdit className="mr-1" /> Edit
+                    <IconFix.Edit className="mr-1" /> Edit
                   </button>
                   <button
                     onClick={() => handleDelete(restaurant.id)}
                     className="bg-red-500 text-white px-3 py-1 rounded-md hover:bg-red-600 flex items-center"
                   >
-                    <FaTrash className="mr-1" /> Delete
+                    <IconFix.Trash className="mr-1" /> Delete
                   </button>
                 </div>
               </div>
@@ -224,7 +232,7 @@ const RestaurantManagement = () => {
                       htmlFor="coverImage"
                       className="cursor-pointer bg-zinc-100 p-2 rounded-md hover:bg-zinc-200 flex items-center"
                     >
-                      <FaImage className="mr-2" /> Upload Image
+                      <IconFix.Image className="mr-2" /> Upload Image
                     </label>
                     {formData.coverImage && (
                       <img
@@ -315,7 +323,7 @@ const RestaurantManagement = () => {
                     onClick={handleAddMenuItem}
                     className="bg-blue-500 text-white px-3 py-1 rounded-md hover:bg-blue-600 text-sm flex items-center"
                   >
-                    <FaPlus className="mr-1" /> Add Item
+                    <IconFix.Plus className="mr-1" /> Add Item
                   </button>
                 </div>
                 <div className="space-y-4">
@@ -356,7 +364,7 @@ const RestaurantManagement = () => {
                         onClick={() => setMenuItems(menuItems.filter(i => i.id !== item.id))}
                         className="text-red-600 hover:text-red-800"
                       >
-                        <FaTrash />
+                        <IconFix.Trash />
                       </button>
                     </div>
                   ))}
