@@ -46,13 +46,84 @@ const RestaurantManagement = () => {
     setFormData({ ...formData, [name]: value });
   };
 
+  const processImage = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      try {
+        const img = document.createElement('img');
+        const reader = new FileReader();
+        
+        reader.onload = () => {
+          img.src = reader.result as string;
+          img.onload = () => {
+            const canvas = document.createElement('canvas');
+            let width = img.width;
+            let height = img.height;
+            
+            // Calculate new dimensions while maintaining aspect ratio
+            const maxSize = 600; // Reduced from 800 to 600
+            if (width > height && width > maxSize) {
+              height = Math.round((height * maxSize) / width);
+              width = maxSize;
+            } else if (height > maxSize) {
+              width = Math.round((width * maxSize) / height);
+              height = maxSize;
+            }
+            
+            canvas.width = width;
+            canvas.height = height;
+            
+            const ctx = canvas.getContext('2d');
+            if (!ctx) {
+              reject(new Error('Could not get canvas context'));
+              return;
+            }
+
+            // Set image smoothing for better quality at smaller sizes
+            ctx.imageSmoothingEnabled = true;
+            ctx.imageSmoothingQuality = 'high';
+            
+            // Draw image with white background to handle transparency
+            ctx.fillStyle = '#FFFFFF';
+            ctx.fillRect(0, 0, width, height);
+            ctx.drawImage(img, 0, 0, width, height);
+            
+            // Convert to base64 with reduced quality
+            const base64 = canvas.toDataURL('image/jpeg', 0.5); // Reduced quality from 0.7 to 0.5
+            
+            // Check if the base64 string is too large (over 1MB)
+            if (base64.length > 1024 * 1024) {
+              // If still too large, reduce dimensions further
+              const scale = Math.sqrt(1024 * 1024 / base64.length);
+              canvas.width = Math.round(width * scale);
+              canvas.height = Math.round(height * scale);
+              ctx.fillStyle = '#FFFFFF';
+              ctx.fillRect(0, 0, canvas.width, canvas.height);
+              ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+              resolve(canvas.toDataURL('image/jpeg', 0.5));
+            } else {
+              resolve(base64);
+            }
+          };
+        };
+        
+        reader.readAsDataURL(file);
+      } catch (error) {
+        reject(error);
+      }
+    });
+  };
+
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>, type: 'cover' | 'menuItem') => {
     const file = e.target.files?.[0];
     if (file) {
-      // TODO: Implement proper image upload to your server/storage
-      const imageUrl = URL.createObjectURL(file); // Temporary URL for preview
-      if (type === 'cover') {
-        setFormData({ ...formData, coverImage: imageUrl });
+      try {
+        const base64 = await processImage(file);
+        if (type === 'cover') {
+          setFormData({ ...formData, coverImage: base64 });
+        }
+      } catch (error) {
+        console.error('Error processing image:', error);
+        alert('Failed to process image');
       }
     }
   };
@@ -343,8 +414,14 @@ const RestaurantManagement = () => {
                             onChange={(e) => {
                               const file = e.target.files?.[0];
                               if (file) {
-                                const imageUrl = URL.createObjectURL(file);
-                                handleMenuItemChange(item.id, 'imageUrl', imageUrl);
+                                processImage(file)
+                                  .then(base64 => {
+                                    handleMenuItemChange(item.id, 'imageUrl', base64);
+                                  })
+                                  .catch(error => {
+                                    console.error('Error processing menu item image:', error);
+                                    alert('Failed to process image');
+                                  });
                               }
                             }}
                             className="block w-full text-sm text-zinc-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-zinc-50 file:text-zinc-700 hover:file:bg-zinc-100"

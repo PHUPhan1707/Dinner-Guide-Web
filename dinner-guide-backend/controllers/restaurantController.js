@@ -1,13 +1,18 @@
 const Restaurant = require("../models/Restaurant");
 const Review = require("../models/Review");
 const User = require("../models/User");
+const MenuItem = require("../models/MenuItem");
 
 // Get all restaurants
 exports.getAllRestaurants = async (req, res) => {
   try {
     const restaurants = await Restaurant.findAll({
       where: { isActive: true },
-      attributes: { exclude: ['updatedAt'] }
+      attributes: { exclude: ['updatedAt'] },
+      include: [{
+        model: MenuItem,
+        attributes: ['id', 'name', 'description', 'imageUrl', 'price']
+      }]
     });
     
     res.json(restaurants);
@@ -23,7 +28,24 @@ exports.getRestaurantById = async (req, res) => {
     const { id } = req.params;
     console.log(`Getting restaurant with ID: ${id}`);
     
-    const restaurant = await Restaurant.findByPk(id);
+    const restaurant = await Restaurant.findByPk(id, {
+      include: [
+        {
+          model: Review,
+          attributes: ['id', 'content', 'rating', 'createdAt'],
+          include: [
+            {
+              model: User,
+              attributes: ['id', 'username']
+            }
+          ]
+        },
+        {
+          model: MenuItem,
+          attributes: ['id', 'name', 'description', 'imageUrl', 'price']
+        }
+      ]
+    });
     
     if (!restaurant) {
       console.log(`Restaurant with ID ${id} not found`);
@@ -99,7 +121,8 @@ exports.createRestaurant = async (req, res) => {
       cuisine,
       priceRange,
       latitude,
-      longitude
+      longitude,
+      menu
     } = req.body;
     
     // Validate required fields
@@ -124,10 +147,27 @@ exports.createRestaurant = async (req, res) => {
       longitude,
       ratingCount: 0
     });
+
+    // Create menu items if provided
+    if (menu && Array.isArray(menu)) {
+      const menuItems = menu.map(item => ({
+        ...item,
+        RestaurantId: newRestaurant.id
+      }));
+      await MenuItem.bulkCreate(menuItems);
+    }
+
+    // Fetch the created restaurant with its menu items
+    const restaurantWithMenu = await Restaurant.findByPk(newRestaurant.id, {
+      include: [{
+        model: MenuItem,
+        attributes: ['id', 'name', 'imageUrl', 'price']
+      }]
+    });
     
     res.status(201).json({
       message: "Restaurant created successfully!",
-      restaurant: newRestaurant
+      restaurant: restaurantWithMenu
     });
   } catch (error) {
     console.error("Error creating restaurant:", error);
@@ -152,7 +192,8 @@ exports.updateRestaurant = async (req, res) => {
       priceRange,
       latitude,
       longitude,
-      isActive
+      isActive,
+      menu
     } = req.body;
     
     const restaurant = await Restaurant.findByPk(id);
@@ -161,7 +202,7 @@ exports.updateRestaurant = async (req, res) => {
       return res.status(404).json({ message: "Restaurant not found!" });
     }
     
-    // Update fields
+    // Update restaurant fields
     const updates = {};
     if (name !== undefined) updates.name = name;
     if (coverImage !== undefined) updates.coverImage = coverImage;
@@ -178,10 +219,33 @@ exports.updateRestaurant = async (req, res) => {
     if (isActive !== undefined) updates.isActive = isActive;
     
     await restaurant.update(updates);
+
+    // Update menu items if provided
+    if (menu && Array.isArray(menu)) {
+      // Delete existing menu items
+      await MenuItem.destroy({
+        where: { RestaurantId: id }
+      });
+
+      // Create new menu items
+      const menuItems = menu.map(item => ({
+        ...item,
+        RestaurantId: id
+      }));
+      await MenuItem.bulkCreate(menuItems);
+    }
+
+    // Fetch updated restaurant with menu items
+    const updatedRestaurant = await Restaurant.findByPk(id, {
+      include: [{
+        model: MenuItem,
+        attributes: ['id', 'name', 'description', 'imageUrl', 'price']
+      }]
+    });
     
     res.json({
       message: "Restaurant updated successfully!",
-      restaurant
+      restaurant: updatedRestaurant
     });
   } catch (error) {
     console.error("Error updating restaurant:", error);
@@ -197,16 +261,16 @@ exports.deleteRestaurant = async (req, res) => {
     const restaurant = await Restaurant.findByPk(id);
     
     if (!restaurant) {
-      return res.status(404).json({ message: "Không tìm thấy nhà hàng!" });
+      return res.status(404).json({ message: "Restaurant not found!" });
     }
     
-    // Soft delete (đặt isActive = false)
+    // Soft delete (set isActive = false)
     restaurant.isActive = false;
     await restaurant.save();
     
-    res.json({ message: "Xóa nhà hàng thành công!" });
+    res.json({ message: "Restaurant deleted successfully!" });
   } catch (error) {
-    console.error("Lỗi xóa nhà hàng:", error);
-    res.status(500).json({ message: "Lỗi server!" });
+    console.error("Error deleting restaurant:", error);
+    res.status(500).json({ message: "Server error!" });
   }
 }; 
