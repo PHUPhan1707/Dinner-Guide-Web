@@ -2,29 +2,18 @@ import AboutofUs from "@/pages/Homepage/AboutofUs";
 import Carouse from "@/pages/Homepage/Carouse";
 import DailyOffers from "@/pages/Homepage/DailyOffers";
 import Feedback from "@/pages/Homepage/Feedback";
-import Title from "@/pages/Homepage/Title";
+import Hero from "@/components/Hero";
 
-type Props = {
-    children: React.ReactNode;
-
-};
-
-const Layout = ({ children }: Props) => {
+const HomePage = () => {
     return (
-        <div>
-            <div className="flex flex-col min-h-screen">
-                {/* Remove the extra padding */}
-                <div className="container mx-auto flex-1">
-                    {children}
-                    <Title />
-                    <AboutofUs />
-                    <Carouse />
-                    <DailyOffers />
-                    <Feedback />
-                </div>
-            </div>
+        <div className="bg-[#1E2328] min-h-screen w-full">
+            <Hero />
+            <AboutofUs />
+            <Carouse />
+            <DailyOffers />
+            <Feedback />
         </div>
     );
 };
 
-export default Layout;
+export default HomePage;
