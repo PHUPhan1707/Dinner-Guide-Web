@@ -21,6 +21,7 @@ export interface Restaurant {
   description: string;
   menu: MenuItem[];
   cuisine?: string;
+  priceRange?: string;
 }
 
 // Add Authorization header with token

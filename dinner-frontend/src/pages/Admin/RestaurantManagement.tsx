@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { FaPlus, FaEdit, FaTrash, FaImage } from 'react-icons/fa';
+import { FaPlus, FaEdit, FaTrash, FaImage, FaHome, FaUtensils, FaWarehouse, FaTachometerAlt, FaCog, FaSignOutAlt, FaSearch, FaQuestionCircle } from 'react-icons/fa';
 import { Restaurant, MenuItem, getAllRestaurants, createRestaurant, updateRestaurant, deleteRestaurant } from '../../api/RestaurantApi';
+import AdminLayout from '../../components/admin/AdminLayout';
 
 const RestaurantManagement = () => {
   const navigate = useNavigate();
@@ -11,6 +12,7 @@ const RestaurantManagement = () => {
   const [formData, setFormData] = useState<Partial<Restaurant>>({});
   const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
 
   // Check authentication on component mount
   useEffect(() => {
@@ -31,6 +33,12 @@ const RestaurantManagement = () => {
     fetchRestaurants();
   }, [navigate]);
 
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    navigate('/');
+  };
+
   const fetchRestaurants = async () => {
     try {
       const response = await getAllRestaurants();
@@ -41,7 +49,7 @@ const RestaurantManagement = () => {
     }
   };
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
   };
@@ -145,18 +153,20 @@ const RestaurantManagement = () => {
   };
 
   const handleDelete = async (id: string) => {
-    if (window.confirm('Are you sure you want to delete this restaurant?')) {
+    if (window.confirm('Are you sure you want to delete this restaurant? This action cannot be undone and will delete all related data including menu items, reviews, and reservations.')) {
       try {
         await deleteRestaurant(id);
-        await fetchRestaurants();
-        alert('Restaurant deleted successfully');
+        // Update local state to remove the deleted restaurant
+        setRestaurants(prevRestaurants => prevRestaurants.filter(r => r.id !== id));
+        alert('Restaurant and all related data deleted successfully');
       } catch (error: any) {
         console.error('Error deleting restaurant:', error);
         if (error.response?.status === 403) {
           alert('You do not have permission to delete restaurants');
           navigate('/auth');
         } else {
-          alert('Failed to delete restaurant');
+          const errorMessage = error.response?.data?.message || 'Failed to delete restaurant';
+          alert(`Error: ${errorMessage}`);
         }
       }
     }
@@ -206,81 +216,183 @@ const RestaurantManagement = () => {
     }
   };
 
-  return (
-    <div className="p-8">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold text-zinc-800">Restaurant Management</h1>
-        <button
-          onClick={() => {
-            setCurrentRestaurant(null);
-            setFormData({});
-            setMenuItems([]);
-            setIsModalOpen(true);
-          }}
-          className="bg-black text-white px-4 py-2 rounded-md hover:bg-zinc-800 flex items-center"
-        >
-          <FaPlus className="mr-2" /> Add Restaurant
-        </button>
-      </div>
+  // Filter restaurants based on search query
+  const filteredRestaurants = useMemo(() => {
+    if (!searchQuery) return restaurants;
+    
+    const query = searchQuery.toLowerCase();
+    return restaurants.filter(restaurant => 
+      restaurant.name.toLowerCase().includes(query) ||
+      restaurant.description.toLowerCase().includes(query) ||
+      restaurant.address.toLowerCase().includes(query) ||
+      restaurant.email.toLowerCase().includes(query) ||
+      restaurant.phone.toLowerCase().includes(query) ||
+      restaurant.menu?.some(item => item.name.toLowerCase().includes(query))
+    );
+  }, [restaurants, searchQuery]);
 
-      {/* Restaurant List */}
-      <div className="grid grid-cols-1 gap-6">
-        {restaurants.map(restaurant => (
-          <div key={restaurant.id} className="bg-white p-6 rounded-lg shadow-md">
-            <div className="flex items-start">
+  const handleSearch = (query: string) => {
+    setSearchQuery(query);
+  };
+
+  return (
+    <AdminLayout onSearch={handleSearch}>
+      <div className="p-8">
+        <div className="flex justify-between items-center mb-6">
+          <div>
+            <h1 className="text-2xl font-bold text-zinc-800">Restaurant Management</h1>
+            <p className="text-sm text-gray-500 mt-1">
+              {filteredRestaurants.length} restaurants found
+              {searchQuery && ` for "${searchQuery}"`}
+            </p>
+          </div>
+          <button
+            onClick={() => {
+              setCurrentRestaurant(null);
+              setFormData({});
+              setMenuItems([]);
+              setIsModalOpen(true);
+            }}
+            className="bg-black text-white px-4 py-2 rounded-md hover:bg-zinc-800 flex items-center"
+          >
+            <FaPlus className="mr-2" /> Add Restaurant
+          </button>
+        </div>
+
+        {/* Restaurant List */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {filteredRestaurants.map(restaurant => (
+            <div key={restaurant.id} className="bg-white rounded-lg shadow-md overflow-hidden">
               <img
-                src={restaurant.coverImage}
+                src={restaurant.coverImage || "https://via.placeholder.com/400x200"}
                 alt={restaurant.name}
-                className="w-48 h-32 object-cover rounded-md mr-6"
+                className="w-full h-48 object-cover"
               />
-              <div className="flex-1">
-                <h2 className="text-xl font-semibold mb-2">{restaurant.name}</h2>
-                <p className="text-gray-600 mb-2">{restaurant.address}</p>
+              <div className="p-4">
+                <h3 className="text-xl font-semibold mb-2">{restaurant.name}</h3>
                 <p className="text-gray-600 mb-4">{restaurant.description}</p>
-                <div className="flex space-x-2">
-                  <button
-                    onClick={() => {
-                      setCurrentRestaurant(restaurant);
-                      setFormData(restaurant);
-                      setIsModalOpen(true);
-                    }}
-                    className="bg-blue-500 text-white px-3 py-1 rounded-md hover:bg-blue-600 flex items-center"
-                  >
-                    <FaEdit className="mr-1" /> Edit
-                  </button>
-                  <button
-                    onClick={() => handleDelete(restaurant.id)}
-                    className="bg-red-500 text-white px-3 py-1 rounded-md hover:bg-red-600 flex items-center"
-                  >
-                    <FaTrash className="mr-1" /> Delete
-                  </button>
+                <div className="flex justify-between items-center">
+                  <div className="text-sm text-gray-500">
+                    {restaurant.openTime} - {restaurant.closeTime}
+                  </div>
+                  <div className="flex space-x-2">
+                    <button
+                      onClick={() => {
+                        setCurrentRestaurant(restaurant);
+                        setFormData(restaurant);
+                        setMenuItems(restaurant.menu || []);
+                        setIsModalOpen(true);
+                      }}
+                      className="p-2 text-blue-600 hover:bg-blue-50 rounded-full"
+                    >
+                      <FaEdit />
+                    </button>
+                    <button
+                      onClick={() => handleDelete(restaurant.id)}
+                      className="p-2 text-red-600 hover:bg-red-50 rounded-full"
+                    >
+                      <FaTrash />
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
 
-      {/* Add/Edit Modal */}
-      {isModalOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-lg p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-            <h2 className="text-2xl font-bold mb-4">
-              {currentRestaurant ? 'Edit Restaurant' : 'Add New Restaurant'}
-            </h2>
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">Name</label>
-                  <input
-                    type="text"
-                    name="name"
-                    value={formData.name || ''}
+        {/* Restaurant Form Modal */}
+        {isModalOpen && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
+            <div className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto p-6">
+              <h2 className="text-2xl font-bold mb-6">
+                {currentRestaurant ? 'Edit Restaurant' : 'Add New Restaurant'}
+              </h2>
+              
+              <form onSubmit={handleSubmit}>
+                {/* Basic Information */}
+                <div className="grid grid-cols-2 gap-6 mb-6">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">Name</label>
+                    <input
+                      type="text"
+                      name="name"
+                      value={formData.name || ''}
+                      onChange={handleInputChange}
+                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">Email</label>
+                    <input
+                      type="email"
+                      name="email"
+                      value={formData.email || ''}
+                      onChange={handleInputChange}
+                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">Phone</label>
+                    <input
+                      type="tel"
+                      name="phone"
+                      value={formData.phone || ''}
+                      onChange={handleInputChange}
+                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">Address</label>
+                    <input
+                      type="text"
+                      name="address"
+                      value={formData.address || ''}
+                      onChange={handleInputChange}
+                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">Opening Time</label>
+                    <input
+                      type="time"
+                      name="openTime"
+                      value={formData.openTime || ''}
+                      onChange={handleInputChange}
+                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">Closing Time</label>
+                    <input
+                      type="time"
+                      name="closeTime"
+                      value={formData.closeTime || ''}
+                      onChange={handleInputChange}
+                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                      required
+                    />
+                  </div>
+                </div>
+
+                {/* Description */}
+                <div className="mb-6">
+                  <label className="block text-sm font-medium text-gray-700">Description</label>
+                  <textarea
+                    name="description"
+                    value={formData.description || ''}
                     onChange={handleInputChange}
+                    rows={3}
                     className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
                     required
                   />
                 </div>
+
+                {/* Cover Image */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700">Cover Image</label>
                   <div className="mt-1 flex items-center">
@@ -306,161 +418,69 @@ const RestaurantManagement = () => {
                     )}
                   </div>
                 </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">Address</label>
-                  <input
-                    type="text"
-                    name="address"
-                    value={formData.address || ''}
-                    onChange={handleInputChange}
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                    required
-                  />
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700">Open Time</label>
-                    <input
-                      type="time"
-                      name="openTime"
-                      value={formData.openTime || ''}
-                      onChange={handleInputChange}
-                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                      required
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700">Close Time</label>
-                    <input
-                      type="time"
-                      name="closeTime"
-                      value={formData.closeTime || ''}
-                      onChange={handleInputChange}
-                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                      required
-                    />
-                  </div>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">Email</label>
-                  <input
-                    type="email"
-                    name="email"
-                    value={formData.email || ''}
-                    onChange={handleInputChange}
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                    required
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">Phone Number</label>
-                  <input
-                    type="tel"
-                    name="phone"
-                    value={formData.phone || ''}
-                    onChange={handleInputChange}
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                    required
-                  />
-                </div>
-              </div>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700">Description</label>
-                <textarea
-                  name="description"
-                  value={formData.description || ''}
-                  onChange={handleInputChange}
-                  rows={3}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                  required
-                />
-              </div>
-
-              {/* Menu Items Section */}
-              <div>
-                <div className="flex justify-between items-center mb-4">
-                  <label className="block text-lg font-medium text-gray-700">Menu Items</label>
-                  <button
-                    type="button"
-                    onClick={handleAddMenuItem}
-                    className="bg-blue-500 text-white px-3 py-1 rounded-md hover:bg-blue-600 text-sm flex items-center"
-                  >
-                    <FaPlus className="mr-1" /> Add Item
-                  </button>
-                </div>
-                <div className="space-y-4">
+                {/* Menu Items */}
+                <div className="mt-6">
+                  <div className="flex justify-between items-center mb-4">
+                    <h3 className="text-lg font-medium">Menu Items</h3>
+                    <button
+                      type="button"
+                      onClick={handleAddMenuItem}
+                      className="bg-zinc-100 px-3 py-1 rounded-md hover:bg-zinc-200"
+                    >
+                      Add Item
+                    </button>
+                  </div>
                   {menuItems.map((item, index) => (
-                    <div key={item.id} className="flex items-start space-x-4 p-4 bg-zinc-50 rounded-md">
-                      <div className="flex-1">
-                        <input
-                          type="text"
-                          value={item.name}
-                          onChange={(e) => handleMenuItemChange(item.id, 'name', e.target.value)}
-                          placeholder="Item name"
-                          className="block w-full rounded-md border-zinc-300 shadow-sm focus:border-zinc-500 focus:ring-zinc-500"
-                        />
-                        <div className="mt-2 flex space-x-4">
-                          <input
-                            type="number"
-                            value={item.price}
-                            onChange={(e) => handleMenuItemChange(item.id, 'price', parseFloat(e.target.value))}
-                            placeholder="Price"
-                            className="block w-32 rounded-md border-zinc-300 shadow-sm focus:border-zinc-500 focus:ring-zinc-500"
-                          />
-                          <input
-                            type="file"
-                            accept="image/*"
-                            onChange={(e) => {
-                              const file = e.target.files?.[0];
-                              if (file) {
-                                processImage(file)
-                                  .then(base64 => {
-                                    handleMenuItemChange(item.id, 'imageUrl', base64);
-                                  })
-                                  .catch(error => {
-                                    console.error('Error processing menu item image:', error);
-                                    alert('Failed to process image');
-                                  });
-                              }
-                            }}
-                            className="block w-full text-sm text-zinc-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-zinc-50 file:text-zinc-700 hover:file:bg-zinc-100"
-                          />
-                        </div>
-                      </div>
+                    <div key={item.id} className="grid grid-cols-3 gap-4 mb-4">
+                      <input
+                        type="text"
+                        value={item.name}
+                        onChange={(e) => handleMenuItemChange(item.id, 'name', e.target.value)}
+                        placeholder="Item name"
+                        className="rounded-md border-gray-300"
+                      />
+                      <input
+                        type="number"
+                        value={item.price}
+                        onChange={(e) => handleMenuItemChange(item.id, 'price', parseFloat(e.target.value))}
+                        placeholder="Price"
+                        className="rounded-md border-gray-300"
+                      />
                       <button
                         type="button"
                         onClick={() => setMenuItems(menuItems.filter(i => i.id !== item.id))}
-                        className="text-red-600 hover:text-red-800"
+                        className="text-red-600 hover:bg-red-50 px-2 rounded"
                       >
-                        <FaTrash />
+                        Remove
                       </button>
                     </div>
                   ))}
                 </div>
-              </div>
 
-              <div className="mt-4 flex justify-end space-x-2">
-                <button
-                  type="button"
-                  onClick={() => setIsModalOpen(false)}
-                  className="px-4 py-2 border rounded-md hover:bg-gray-100"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  disabled={isLoading}
-                  className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 disabled:opacity-50"
-                >
-                  {isLoading ? 'Saving...' : 'Save'}
-                </button>
-              </div>
-            </form>
+                {/* Form Actions */}
+                <div className="mt-6 flex justify-end space-x-3">
+                  <button
+                    type="button"
+                    onClick={() => setIsModalOpen(false)}
+                    className="px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={isLoading}
+                    className="px-4 py-2 bg-black text-white rounded-md hover:bg-zinc-800 disabled:opacity-50"
+                  >
+                    {isLoading ? 'Saving...' : 'Save'}
+                  </button>
+                </div>
+              </form>
+            </div>
           </div>
-        </div>
-      )}
-    </div>
+        )}
+      </div>
+    </AdminLayout>
   );
 };
 

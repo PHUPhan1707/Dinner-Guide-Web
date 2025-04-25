@@ -1,6 +1,14 @@
 import axios from "axios";
+import { API_URL } from './config';
 
-const API_URL = "http://localhost:5000/api/auth";
+export interface User {
+  id: string;
+  username: string;
+  email: string;
+  isAdmin: boolean;
+  avatar?: string;
+  createdAt: string;
+}
 
 // Thêm header Authorization với token
 const getAuthHeader = () => {
@@ -17,15 +25,15 @@ export const registerUser = async (
   email: string,
   password: string
 ) => {
-  return axios.post(`${API_URL}/register`, { username, email, password });
+  return axios.post(`${API_URL}/auth/register`, { username, email, password });
 };
 
 export const verifyEmail = async (email: string, code: string) => {
-  return axios.post(`${API_URL}/verify-email`, { email, code });
+  return axios.post(`${API_URL}/auth/verify-email`, { email, code });
 };
 
 export const loginUser = async (email: string, password: string) => {
-  return axios.post(`${API_URL}/login`, { email, password });
+  return axios.post(`${API_URL}/auth/login`, { email, password });
 };
 
 // Thêm hàm lấy thông tin profile
@@ -45,5 +53,37 @@ export const updateUserProfile = async (userData: {
   currentPassword?: string;
 }) => {
   return axios.put(`${API_URL}/profile`, userData, getAuthHeader());
+};
+
+// Update user profile
+export const updateUser = (userId: string, userData: {
+  fullName?: string;
+  email?: string;
+  phone?: string;
+  currentPassword?: string;
+  newPassword?: string;
+}) => {
+  return axios.put(`${API_URL}/users/${userId}`, userData, getAuthHeader());
+};
+
+// Upload user avatar
+export const uploadAvatar = (formData: FormData) => {
+  return axios.post(`${API_URL}/users/avatar`, formData, {
+    ...getAuthHeader(),
+    headers: {
+      ...getAuthHeader().headers,
+      'Content-Type': 'multipart/form-data',
+    },
+  });
+};
+
+// [ADMIN] Get all users
+export const getAllUsers = () => {
+  return axios.get(`${API_URL}/users`, getAuthHeader());
+};
+
+// [ADMIN] Delete a user
+export const deleteUser = (id: string) => {
+  return axios.delete(`${API_URL}/users/${id}`, getAuthHeader());
 };
 

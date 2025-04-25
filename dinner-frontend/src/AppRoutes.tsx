@@ -7,6 +7,8 @@ import AdminPage from "./pages/Admin/AdminPage";
 import RestaurantManagement from "./pages/Admin/RestaurantManagement";
 import RestaurantDetail from "./pages/Restaurant/RestaurantDetail";
 import UserProfilePage from "./pages/UserProfilePage";
+import Settings from "./pages/Admin/Settings";
+import Dashboard from "./pages/Admin/Dashboard";
 
 const AppRoutes = () => {
     return (
@@ -47,6 +49,8 @@ const AppRoutes = () => {
             {/* Admin Pages */}
             <Route path="/admin" element={<AdminPage />} />
             <Route path="/admin/restaurants" element={<RestaurantManagement />} />
+            <Route path="/admin/dashboard" element={<Dashboard />} />
+            <Route path="/admin/settings" element={<Settings />} />
 
             {/* User Profile Page */}
             <Route path="/user-profile" element={<UserProfilePage />} />

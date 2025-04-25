@@ -253,7 +253,7 @@ exports.updateRestaurant = async (req, res) => {
   }
 };
 
-// [ADMIN] Xóa nhà hàng (soft delete)
+// [ADMIN] Delete restaurant (hard delete with cascading)
 exports.deleteRestaurant = async (req, res) => {
   try {
     const { id } = req.params;
@@ -264,9 +264,8 @@ exports.deleteRestaurant = async (req, res) => {
       return res.status(404).json({ message: "Restaurant not found!" });
     }
     
-    // Soft delete (set isActive = false)
-    restaurant.isActive = false;
-    await restaurant.save();
+    // Hard delete the restaurant and all related data will be deleted due to CASCADE
+    await restaurant.destroy();
     
     res.json({ message: "Restaurant deleted successfully!" });
   } catch (error) {
