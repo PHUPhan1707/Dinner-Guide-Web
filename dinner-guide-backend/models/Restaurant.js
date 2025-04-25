@@ -14,7 +14,7 @@ const Restaurant = sequelize.define(
       allowNull: false,
     },
     coverImage: {
-      type: DataTypes.STRING(1000),
+      type: DataTypes.TEXT,
       allowNull: false,
     },
     address: {

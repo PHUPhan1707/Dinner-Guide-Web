@@ -1,13 +1,8 @@
 import RestaurantCard from "./RestaurantCard";
+import { Restaurant } from "@/api/RestaurantApi";
 
 type Props = {
-    restaurants: {
-        id: string;
-        name: string;
-        image: string;
-        location: string;
-        reviews: number;
-    }[];
+    restaurants: Restaurant[];
 };
 
 const RestaurantCards = ({ restaurants }: Props) => {

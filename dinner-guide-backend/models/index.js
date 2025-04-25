@@ -23,18 +23,9 @@ Reservation.belongsTo(User, { foreignKey: 'UserId' });
 
 const syncDatabase = async () => {
   try {
-    // Sync tables in correct order (parent tables first)
-    await User.sync({ alter: true });
-    await Restaurant.sync({ alter: true });
-
-    // Then sync child tables
-    await Promise.all([
-      MenuItem.sync({ alter: true }),
-      Review.sync({ alter: true }),
-      Reservation.sync({ alter: true })
-    ]);
-
-    console.log("✅ Database synchronized successfully");
+    // Using alter: true to update schema without dropping tables
+    await sequelize.sync({ alter: true });
+    console.log("✅ Database synchronized and schema updated");
   } catch (error) {
     console.error("❌ Database sync error:", error);
   }

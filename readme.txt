@@ -41,6 +41,8 @@ cd ./dinner-guide-backend
 Chạy:
 npm install -g yarn
 npm install nodemailer
+npm install express-fileupload uuid --save
+npm install multer
  
 Mở backend:
 yarn start

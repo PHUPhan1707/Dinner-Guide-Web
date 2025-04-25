@@ -3,16 +3,7 @@ import Title from "@/pages/Restaurant/ResTitle";
 import SortingBar from "@/pages/Restaurant/SortingBar";
 import CategoryFilter from "@/pages/Restaurant/CategoryFiller";
 import RestaurantCards from "@/pages/Restaurant/RestaurantCards";
-import { getAllRestaurants } from "@/api/RestaurantApi";
-
-type Restaurant = {
-    id: string;
-    name: string;
-    image: string;
-    location: string;
-    reviews: number;
-    cuisine?: string;
-};
+import { getAllRestaurants, Restaurant } from "@/api/RestaurantApi";
 
 const RestaurantPage = () => {
     const [restaurants, setRestaurants] = useState<Restaurant[]>([]);
@@ -28,35 +19,12 @@ const RestaurantPage = () => {
             try {
                 setLoading(true);
                 const response = await getAllRestaurants();
-
-                // Transform the API response to match our Restaurant type
-                const formattedRestaurants = response.data.map((restaurant: any) => ({
-                    id: String(restaurant._id || restaurant.id),
-                    name: restaurant.name,
-                    image: restaurant.imageUrl || "https://via.placeholder.com/300x200?text=No+Image",
-                    location: restaurant.address,
-                    reviews: restaurant.reviewCount || 0,
-                    cuisine: restaurant.cuisine,
-                }));
-
-                setRestaurants(formattedRestaurants);
+                setRestaurants(response.data);
+                setFilteredRestaurants(response.data);
                 setError(null);
             } catch (err) {
                 console.error("Error fetching restaurants:", err);
                 setError("Failed to load restaurants. Please try again later.");
-
-                // For development purposes, you can uncomment this to show sample data
-                /*
-                setRestaurants([
-                    {
-                        id: 1,
-                        name: "Quán A",
-                        image: "https://northwoodoffice-assets.imgix.net/goBallantyne/images/heroes/NORTHITALIA156-2.jpg?auto=compress%2Cformat&crop=focalpoint&fit=crop&fp-debug=&fp-x=0.4993&fp-y=0.7915&fp-z=1&h=1080&ixlib=php-3.1.0&q=80&v=1718293452&w=1920",
-                        location: "Địa chỉ, quận, huyện, thành phố",
-                        reviews: 293,
-                    },
-                ]);
-                */
             } finally {
                 setLoading(false);
             }
