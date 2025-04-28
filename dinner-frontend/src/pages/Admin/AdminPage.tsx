@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { FaUtensils, FaTachometerAlt, FaCog } from 'react-icons/fa';
 import AdminLayout from '../../components/admin/AdminLayout';
 
@@ -16,14 +17,14 @@ const AdminPage = () => {
         
         <div className="grid grid-cols-2 gap-6">
           {menuItems.map((item, index) => (
-            <a
+            <Link
               key={index}
-              href={item.link}
+              to={item.link}
               className="bg-black rounded-lg p-8 text-white hover:bg-zinc-800 transition-colors flex flex-col items-center justify-center"
             >
               {item.icon}
               <span className="mt-4 text-xl">{item.title}</span>
-            </a>
+            </Link>
           ))}
         </div>
       </div>

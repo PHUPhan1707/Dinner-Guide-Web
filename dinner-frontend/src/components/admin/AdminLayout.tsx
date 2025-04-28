@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import AdminSidebar from './AdminSidebar';
 import AdminHeader from './AdminHeader';
+import SplashTransition from '../SplashTransition';
 
 interface AdminLayoutProps {
   children: React.ReactNode;
@@ -14,6 +15,14 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, onSearch }) => {
   const [userAvatar, setUserAvatar] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [globalSearchResults, setGlobalSearchResults] = useState<any[]>([]);
+  const [showSplash, setShowSplash] = useState(false);
+
+  // Handle page transitions
+  useEffect(() => {
+    setShowSplash(true);
+    const timer = setTimeout(() => setShowSplash(false), 1800); // Match the total duration of the splash
+    return () => clearTimeout(timer);
+  }, [location.pathname]);
 
   useEffect(() => {
     // Check authentication and admin status
@@ -39,27 +48,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, onSearch }) => {
     setSearchQuery(query);
     
     if (query.trim()) {
-      // Here you would implement your global search logic
-      // This could include searching across:
-      // - Restaurants
-      // - Menu items
-      // - Users
-      // - Orders
-      // - Settings
-      // etc.
-      
       try {
-        // Example of what the search implementation might look like:
-        // const results = await Promise.all([
-        //   searchRestaurants(query),
-        //   searchMenuItems(query),
-        //   searchUsers(query),
-        //   searchOrders(query)
-        // ]);
-        
-        // setGlobalSearchResults(results.flat());
-        
-        // For now, we'll just pass the query to the page-specific search handler
         if (onSearch) {
           onSearch(query);
         }
@@ -76,6 +65,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, onSearch }) => {
 
   return (
     <div className="flex min-h-screen bg-zinc-100">
+      <SplashTransition show={showSplash} />
       <AdminSidebar />
       <div className="flex-1">
         <AdminHeader 
@@ -83,7 +73,14 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, onSearch }) => {
           searchQuery={searchQuery}
           onSearchChange={handleGlobalSearch}
         />
-        <main className="p-8 mt-20 ml-64">
+        <main 
+          className="p-8 mt-20 ml-64" 
+          style={{ 
+            opacity: showSplash ? 0 : 1,
+            transition: "opacity 0.8s ease-in-out",
+            transitionDelay: showSplash ? "0s" : "0.6s"
+          }}
+        >
           {children}
         </main>
       </div>
