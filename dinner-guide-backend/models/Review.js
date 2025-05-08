@@ -28,7 +28,12 @@ const Review = sequelize.define(
     RestaurantId: {
       type: DataTypes.UUID,
       allowNull: false
-    }
+    },
+    photos: {
+      type: DataTypes.JSON,
+      allowNull: true,
+      defaultValue: []}
+
   },
   {
     timestamps: true

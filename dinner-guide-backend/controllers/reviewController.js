@@ -15,11 +15,11 @@ exports.getRestaurantReviews = async (req, res) => {
     }
     
     const reviews = await Review.findAll({
-      where: { restaurantId },
+      where: { RestaurantId: restaurantId },
       include: [
         {
           model: User,
-          attributes: ['id', 'username']
+          attributes: ['id', 'username', 'email', 'avatar']
         }
       ],
       order: [['createdAt', 'DESC']]
@@ -32,8 +32,23 @@ exports.getRestaurantReviews = async (req, res) => {
       const reviewJSON = review.toJSON();
       // Đảm bảo photos là mảng
       if (!reviewJSON.photos) reviewJSON.photos = [];
+      
+      // Ensure User property is available in response
+      if (reviewJSON.User) {
+        reviewJSON.user = {
+          id: reviewJSON.User.id,
+          username: reviewJSON.User.username || 'Người dùng ẩn danh'
+        };
+      }
+      
       return reviewJSON;
     });
+    
+    console.log("Reviews processed:", safeReviews.map(r => ({ 
+      id: r.id, 
+      userId: r.UserId, 
+      user: r.user 
+    })));
     
     res.json(safeReviews);
   } catch (error) {
@@ -63,7 +78,7 @@ exports.createReview = async (req, res) => {
     
     // Kiểm tra nếu người dùng đã đánh giá nhà hàng này chưa
     const existingReview = await Review.findOne({
-      where: { userId, restaurantId }
+      where: { UserId: userId, RestaurantId: restaurantId }
     });
     
     if (existingReview) {
@@ -78,12 +93,12 @@ exports.createReview = async (req, res) => {
       processedPhotos = photos;
     }
     
-    // Tạo đánh giá mới
+    // Tạo đánh giá mới - Mapped field names to match the model schema
     const newReview = await Review.create({
-      userId,
-      restaurantId,
+      UserId: userId,
+      RestaurantId: restaurantId,
       rating,
-      comment: comment || "",
+      content: comment || "", // Map 'comment' from frontend to 'content' in database
       visitDate: visitDate || null,
       photos: processedPhotos
     });
@@ -112,7 +127,7 @@ exports.updateReview = async (req, res) => {
     }
     
     // Kiểm tra người dùng có quyền cập nhật không
-    if (review.userId !== userId && req.user.role !== 'admin') {
+    if (review.UserId !== userId && req.user.role !== 'admin') {
       return res.status(403).json({ 
         message: "Bạn không có quyền cập nhật đánh giá này!" 
       });
@@ -120,7 +135,7 @@ exports.updateReview = async (req, res) => {
     
     // Cập nhật các trường
     if (rating !== undefined) review.rating = rating;
-    if (comment !== undefined) review.comment = comment;
+    if (comment !== undefined) review.content = comment;
     if (visitDate !== undefined) review.visitDate = visitDate;
     if (photos !== undefined) review.photos = photos;
     
@@ -150,7 +165,7 @@ exports.deleteReview = async (req, res) => {
     
     // Kiểm tra người dùng có quyền xóa không
     const isAdmin = req.user.role === 'admin';
-    if (review.userId !== userId && !isAdmin) {
+    if (review.UserId !== userId && !isAdmin) {
       return res.status(403).json({ 
         message: "Bạn không có quyền xóa đánh giá này!" 
       });
@@ -171,7 +186,7 @@ exports.getMyReviews = async (req, res) => {
     const userId = req.user.id;
     
     const reviews = await Review.findAll({
-      where: { userId },
+      where: { UserId: userId },
       include: [
         {
           model: Restaurant,

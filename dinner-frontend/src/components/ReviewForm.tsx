@@ -1,8 +1,10 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from 'sonner';
 import { createReview } from '@/api/ReviewApi';
+import { uploadReviewImage } from '@/api/ImageApi';
 import { useNavigate } from 'react-router-dom';
 
 interface ReviewFormProps {
@@ -12,12 +14,14 @@ interface ReviewFormProps {
 
 const ReviewForm = ({ restaurantId, onReviewSubmitted }: ReviewFormProps) => {
     const navigate = useNavigate();
+    const fileInputRef = useRef<HTMLInputElement>(null);
     const [rating, setRating] = useState<number>(0);
     const [comment, setComment] = useState<string>('');
     const [visitDate, setVisitDate] = useState<string>('');
     const [photos, setPhotos] = useState<string[]>([]);
     const [photoUrls, setPhotoUrls] = useState<string>('');
     const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+    const [isUploadingImage, setIsUploadingImage] = useState<boolean>(false);
     const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
 
     // Kiểm tra đăng nhập mỗi khi component mount
@@ -55,6 +59,47 @@ const ReviewForm = ({ restaurantId, onReviewSubmitted }: ReviewFormProps) => {
         }
     };
 
+    const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const files = e.target.files;
+        if (!files || files.length === 0) return;
+
+        // Check if user is logged in
+        if (!isLoggedIn) {
+            toast.error('Bạn cần đăng nhập để tải lên ảnh');
+            setTimeout(() => {
+                navigate('/auth');
+            }, 1500);
+            return;
+        }
+
+        setIsUploadingImage(true);
+
+        try {
+            // Upload each file
+            for (let i = 0; i < files.length; i++) {
+                const file = files[i];
+                const formData = new FormData();
+                formData.append('image', file);
+
+                const response = await uploadReviewImage(formData);
+
+                if (response && response.data && response.data.imageUrl) {
+                    setPhotos(prev => [...prev, response.data.imageUrl]);
+                }
+            }
+
+            // Clear the file input
+            if (fileInputRef.current) {
+                fileInputRef.current.value = '';
+            }
+        } catch (error: any) {
+            console.error('Error uploading images:', error);
+            toast.error(error.response?.data?.message || 'Không thể tải lên ảnh. Vui lòng thử lại sau.');
+        } finally {
+            setIsUploadingImage(false);
+        }
+    };
+
     const handleRemovePhoto = (index: number) => {
         setPhotos(prev => prev.filter((_, i) => i !== index));
     };
@@ -64,6 +109,11 @@ const ReviewForm = ({ restaurantId, onReviewSubmitted }: ReviewFormProps) => {
         setComment('');
         setVisitDate('');
         setPhotos([]);
+        setPhotoUrls('');
+
+        if (fileInputRef.current) {
+            fileInputRef.current.value = '';
+        }
 
         try {
             const starButtons = document.querySelectorAll('.star-rating-button');
@@ -107,7 +157,7 @@ const ReviewForm = ({ restaurantId, onReviewSubmitted }: ReviewFormProps) => {
                 rating,
                 comment: comment.trim() || undefined,
                 visitDate: visitDate || undefined,
-                photos: photos.length > 0 ? photos.filter(url => url && url.trim() && url.startsWith('http')) : undefined,
+                photos: photos.length > 0 ? photos : undefined,
             };
 
             const response = await createReview(reviewData);
@@ -214,29 +264,74 @@ const ReviewForm = ({ restaurantId, onReviewSubmitted }: ReviewFormProps) => {
 
                 <div className="mb-4">
                     <label className="block text-gray-700 text-sm font-semibold mb-2">
-                        Hình ảnh (Nhập URL, phân cách bằng dấu phẩy)
+                        Hình ảnh
                     </label>
-                    <div className="flex gap-2">
-                        <input
-                            type="text"
-                            placeholder="https://example.com/image.jpg"
-                            className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
-                            value={photoUrls}
-                            onChange={handlePhotoUrlsChange}
-                        />
-                        <Button
-                            type="button"
-                            variant="outline"
-                            onClick={handleAddPhotos}
-                            className="whitespace-nowrap"
-                        >
-                            Thêm
-                        </Button>
-                    </div>
+
+                    <Tabs defaultValue="upload" className="w-full">
+                        <TabsList className="grid w-full grid-cols-2 mb-2">
+                            <TabsTrigger value="upload">Tải lên từ máy tính</TabsTrigger>
+                            <TabsTrigger value="url">Thêm từ URL</TabsTrigger>
+                        </TabsList>
+
+                        <TabsContent value="upload">
+                            <div className="flex flex-col gap-2">
+                                <label
+                                    htmlFor="fileUpload"
+                                    className={`flex items-center justify-center w-full h-24 px-4 transition border-2 border-gray-300 border-dashed rounded-md appearance-none cursor-pointer hover:border-orange-400 focus:outline-none ${isUploadingImage ? 'opacity-50' : ''}`}
+                                >
+                                    {isUploadingImage ? (
+                                        <div className="flex flex-col items-center">
+                                            <div className="w-8 h-8 border-t-2 border-b-2 border-orange-500 rounded-full animate-spin"></div>
+                                            <span className="mt-2 text-sm text-gray-600">Đang tải lên...</span>
+                                        </div>
+                                    ) : (
+                                        <div className="flex flex-col items-center">
+                                            <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                                            </svg>
+                                            <span className="mt-2 text-base leading-normal text-gray-600">Chọn ảnh từ máy tính</span>
+                                            <span className="mt-1 text-xs text-gray-500">PNG, JPG (tối đa 5MB)</span>
+                                        </div>
+                                    )}
+                                </label>
+                                <input
+                                    ref={fileInputRef}
+                                    id="fileUpload"
+                                    type="file"
+                                    accept="image/*"
+                                    multiple
+                                    className="hidden"
+                                    onChange={handleFileChange}
+                                    disabled={isUploadingImage}
+                                />
+                            </div>
+                        </TabsContent>
+
+                        <TabsContent value="url">
+                            <div className="flex gap-2">
+                                <input
+                                    type="text"
+                                    placeholder="https://example.com/image.jpg"
+                                    className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
+                                    value={photoUrls}
+                                    onChange={handlePhotoUrlsChange}
+                                />
+                                <Button
+                                    type="button"
+                                    variant="outline"
+                                    onClick={handleAddPhotos}
+                                    className="whitespace-nowrap"
+                                >
+                                    Thêm
+                                </Button>
+                            </div>
+                            <p className="mt-1 text-xs text-gray-500">Nhập URL, phân cách bằng dấu phẩy nếu có nhiều ảnh</p>
+                        </TabsContent>
+                    </Tabs>
 
                     {photos.length > 0 && (
-                        <div className="mt-2">
-                            <p className="text-sm font-semibold mb-1">Đã thêm {photos.length} hình ảnh:</p>
+                        <div className="mt-4">
+                            <p className="text-sm font-semibold mb-2">Đã thêm {photos.length} hình ảnh:</p>
                             <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 mt-2">
                                 {photos.map((photo, index) => (
                                     <div key={index} className="relative group">
@@ -249,9 +344,11 @@ const ReviewForm = ({ restaurantId, onReviewSubmitted }: ReviewFormProps) => {
                                         <button
                                             type="button"
                                             onClick={() => handleRemovePhoto(index)}
-                                            className="absolute top-1 right-1 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                                            className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
                                         >
-                                            ×
+                                            <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                            </svg>
                                         </button>
                                     </div>
                                 ))}
@@ -262,10 +359,17 @@ const ReviewForm = ({ restaurantId, onReviewSubmitted }: ReviewFormProps) => {
 
                 <Button
                     type="submit"
-                    className="bg-orange-500 hover:bg-orange-600 text-white w-full"
+                    className="w-full bg-orange-500 hover:bg-orange-600 text-white py-2 px-4 rounded-md transition-colors"
                     disabled={isSubmitting}
                 >
-                    {isSubmitting ? 'Đang gửi...' : 'Gửi đánh giá'}
+                    {isSubmitting ? (
+                        <div className="flex items-center justify-center">
+                            <div className="w-5 h-5 border-t-2 border-b-2 border-white rounded-full animate-spin mr-2"></div>
+                            <span>Đang gửi...</span>
+                        </div>
+                    ) : (
+                        "Gửi đánh giá"
+                    )}
                 </Button>
             </form>
 
