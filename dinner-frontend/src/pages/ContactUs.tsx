@@ -1,22 +1,20 @@
 import React, { useState, useEffect } from 'react';
-import twitterLogo from "@/assets/twitterlogo.png";
-import fbLogo from "@/assets/fblogo.png";
-import insLogo from "@/assets/inslogo.png";
+import { Send, Phone, Mail, Twitter, Facebook, Instagram, ArrowRight } from 'lucide-react';
 
-const ContactUs: React.FC = () => {
+const ContactUs = () => {
     const [firstName, setFirstName] = useState('');
     const [lastName, setLastName] = useState('');
     const [email, setEmail] = useState('');
     const [subject, setSubject] = useState('');
     const [message, setMessage] = useState('');
     const [isValid, setIsValid] = useState(false);
+    const [submitted, setSubmitted] = useState(false);
 
     useEffect(() => {
         const allFilled = firstName.trim() && lastName.trim() && email.trim() && subject.trim() && message.trim();
         setIsValid(!!allFilled);
     }, [firstName, lastName, email, subject, message]);
 
-    // Set background color of body and html to match container
     useEffect(() => {
         document.body.style.backgroundColor = '#1e2328';
         document.documentElement.style.backgroundColor = '#1e2328';
@@ -27,163 +25,153 @@ const ContactUs: React.FC = () => {
         };
     }, []);
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = (e) => {
         e.preventDefault();
-        alert('Message sent!');
+        setSubmitted(true);
+        setTimeout(() => {
+            setSubmitted(false);
+            setFirstName('');
+            setLastName('');
+            setEmail('');
+            setSubject('');
+            setMessage('');
+        }, 3000);
     };
 
     return (
-        <div style={styles.container}>
-            <div style={styles.infoSection}>
-                <h1 className="text-5xl font-newsreader font-medium mt-2">Contact us</h1>
-                <p className="text-gray-300 leading-relaxed">
-                    For the first time, a dedicated platform brings together honest reviews, expert insights,
-                    and exclusive features, all tailored for those who seek the most delightful meals in Ho Chi Minh
-                    City.
-                </p>
-                <p className="text-2xl text-yellow-400 font-bonheur"><em>Phone</em></p>
-                <p style={styles.detail}>+84 - 012 345 6789</p>
-                <p className="text-2xl text-yellow-400 font-bonheur"><em>Email</em></p>
-                <p style={styles.detail}>diningning@mail.com</p>
-                <p className="text-gray-300 leading-relaxed">Follow us </p>
-                <div className="flex space-x-6 mt-6">
-                    <a href="https://twitter.com" target="_blank" rel="noopener noreferrer"
-                       className="hover:opacity-80 transition-opacity">
-                        <img src={twitterLogo} alt="Twitter" className="h-6 md:h-8" />
-                    </a>
-                    <a href="https://facebook.com" target="_blank" rel="noopener noreferrer"
-                       className="hover:opacity-80 transition-opacity">
-                        <img src={fbLogo} alt="Facebook" className="h-6 md:h-8" />
-                    </a>
-                    <a href="https://instagram.com" target="_blank" rel="noopener noreferrer"
-                       className="hover:opacity-80 transition-opacity">
-                        <img src={insLogo} alt="Instagram" className="h-6 md:h-8" />
-                    </a>
+        <div className="flex flex-col lg:flex-row justify-between p-6 md:p-10 bg-gray-900 text-white min-h-screen mt-24">
+            <div className="lg:w-2/5 mb-10 lg:mb-0 lg:mr-12 animate-fadeIn">
+                <div className="relative mb-8">
+                    <h1 className="text-5xl font-newsreader font-medium">Contact us</h1>
+                    <div className="absolute -bottom-3 left-0 h-1 w-24 bg-yellow-400"></div>
+                </div>
+
+                <div className="bg-gray-800 p-6 rounded-lg shadow-xl mb-8">
+                    <div className="flex items-center mb-6">
+                        <div className="bg-yellow-500 p-3 rounded-full mr-4">
+                            <Phone size={20} className="text-gray-900" />
+                        </div>
+                        <div>
+                            <p className="text-lg text-yellow-400 font-bonheur mb-1"><em>Phone</em></p>
+                            <p className="font-medium text-white">+84 - 012 345 6789</p>
+                        </div>
+                    </div>
+
+                    <div className="flex items-center">
+                        <div className="bg-yellow-500 p-3 rounded-full mr-4">
+                            <Mail size={20} className="text-gray-900" />
+                        </div>
+                        <div>
+                            <p className="text-lg text-yellow-400 font-bonheur mb-1"><em>Email</em></p>
+                            <p className="font-medium text-white">diningning@mail.com</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <p className="text-gray-300 mb-4 font-medium">Follow us on social media</p>
+                    <div className="flex space-x-4">
+                        <a href="#" className="bg-gray-800 hover:bg-gray-700 p-3 rounded-full transition-all duration-300">
+                            <Twitter size={20} className="text-yellow-400" />
+                        </a>
+                        <a href="#" className="bg-gray-800 hover:bg-gray-700 p-3 rounded-full transition-all duration-300">
+                            <Facebook size={20} className="text-yellow-400" />
+                        </a>
+                        <a href="#" className="bg-gray-800 hover:bg-gray-700 p-3 rounded-full transition-all duration-300">
+                            <Instagram size={20} className="text-yellow-400" />
+                        </a>
+                    </div>
                 </div>
             </div>
 
-            <form onSubmit={handleSubmit} style={styles.formSection}>
-                <h2 className="text-3xl font-newsreader font-medium mt-2">Send a message</h2>
+            <div className="lg:w-3/5 animate-fadeIn">
+                <div className="bg-white text-gray-900 p-8 rounded-lg shadow-2xl relative overflow-hidden">
+                    <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-yellow-400 to-yellow-600"></div>
 
-                <label>Name *</label>
-                <div style={{ display: 'flex', gap: '10px' }}>
-                    <input
-                        type="text"
-                        value={firstName}
-                        onChange={e => setFirstName(e.target.value)}
-                        placeholder="First"
-                        required
-                        style={styles.input}
-                    />
-                    <input
-                        type="text"
-                        value={lastName}
-                        onChange={e => setLastName(e.target.value)}
-                        placeholder="Last"
-                        required
-                        style={styles.input}
-                    />
+                    {submitted ? (
+                        <div className="flex flex-col items-center justify-center py-12">
+                            <div className="w-16 h-16 bg-green-500 rounded-full flex items-center justify-center mb-6">
+                                <Send size={32} className="text-white" />
+                            </div>
+                            <h2 className="text-2xl font-medium mb-2">Message Sent!</h2>
+                            <p className="text-gray-600 text-center">Thank you for reaching out. We'll get back to you soon.</p>
+                        </div>
+                    ) : (
+                        <>
+                            <div className="flex items-center mb-6">
+                                <h2 className="text-3xl font-newsreader font-medium">Send a message</h2>
+                                <div className="ml-4 h-px flex-grow bg-gray-200"></div>
+                            </div>
+
+                            <div>
+                                <div className="mb-6">
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">Name <span className="text-red-500">*</span></label>
+                                    <div className="flex gap-4">
+                                        <div className="w-1/2">
+                                            <input
+                                                type="text"
+                                                value={firstName}
+                                                onChange={e => setFirstName(e.target.value)}
+                                                placeholder="First"
+                                                className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-400"
+                                            />
+                                        </div>
+                                        <div className="w-1/2">
+                                            <input
+                                                type="text"
+                                                value={lastName}
+                                                onChange={e => setLastName(e.target.value)}
+                                                placeholder="Last"
+                                                className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-400"
+                                            />
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div className="mb-6">
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">Email <span className="text-red-500">*</span></label>
+                                    <input
+                                        type="email"
+                                        value={email}
+                                        onChange={e => setEmail(e.target.value)}
+                                        className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-400"
+                                    />
+                                </div>
+
+                                <div className="mb-6">
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">Subject <span className="text-red-500">*</span></label>
+                                    <input
+                                        type="text"
+                                        value={subject}
+                                        onChange={e => setSubject(e.target.value)}
+                                        className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-400"
+                                    />
+                                </div>
+
+                                <div className="mb-8">
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">Comment or Message <span className="text-red-500">*</span></label>
+                                    <textarea
+                                        value={message}
+                                        onChange={e => setMessage(e.target.value)}
+                                        className="w-full p-3 border border-gray-300 rounded-lg h-32 focus:outline-none focus:ring-2 focus:ring-yellow-400"
+                                    />
+                                </div>
+
+                                <button
+                                    onClick={handleSubmit}
+                                    disabled={!isValid}
+                                    className={`flex items-center justify-center px-6 py-3 rounded-lg font-medium text-white transition-all duration-300 ${isValid ? 'bg-black hover:bg-gray-800' : 'bg-gray-300 text-gray-500 cursor-not-allowed'}`}
+                                >
+                                    Send Message
+                                    {isValid && <ArrowRight size={18} className="ml-2" />}
+                                </button>
+                            </div>
+                        </>
+                    )}
                 </div>
-
-                <label>Email *</label>
-                <input
-                    type="email"
-                    value={email}
-                    onChange={e => setEmail(e.target.value)}
-                    required
-                    style={styles.input}
-                />
-
-                <label>Subject *</label>
-                <input
-                    type="text"
-                    value={subject}
-                    onChange={e => setSubject(e.target.value)}
-                    required
-                    style={styles.input}
-                />
-
-                <label>Comment or Message *</label>
-                <textarea
-                    value={message}
-                    onChange={e => setMessage(e.target.value)}
-                    required
-                    style={styles.textarea}
-                />
-
-                <button type="submit" disabled={!isValid} style={isValid ? styles.button : styles.disabledButton}>
-                    Send Message
-                </button>
-            </form>
+            </div>
         </div>
     );
-};
-
-const styles: { [key: string]: React.CSSProperties } = {
-    container: {
-        display: 'flex',
-        justifyContent: 'space-between',
-        padding: '40px',
-        backgroundColor: '#1e2328',
-        color: 'white',
-        minHeight: '100vh',
-        margin: "96px 0 0 0"
-    },
-    infoSection: {
-        flex: '1',
-        marginRight: '40px'
-    },
-    formSection: {
-        backgroundColor: 'white',
-        color: 'black',
-        padding: '30px',
-        borderRadius: '10px',
-        flex: '1'
-    },
-    input: {
-        width: '100%',
-        padding: '10px',
-        marginBottom: '15px',
-        borderRadius: '5px',
-        border: '1px solid #ccc'
-    },
-    textarea: {
-        width: '100%',
-        padding: '10px',
-        height: '100px',
-        marginBottom: '15px',
-        borderRadius: '5px',
-        border: '1px solid #ccc'
-    },
-    button: {
-        backgroundColor: 'black',
-        color: 'white',
-        padding: '10px 20px',
-        border: 'none',
-        cursor: 'pointer',
-        borderRadius: '5px',
-        textDecoration: 'underline'
-    },
-    disabledButton: {
-        backgroundColor: '#ccc',
-        color: '#666',
-        padding: '10px 20px',
-        border: 'none',
-        cursor: 'not-allowed',
-        borderRadius: '5px'
-    },
-    label: {
-        fontStyle: 'italic',
-        color: '#ffb300',
-        marginTop: '20px'
-    },
-    detail: {
-        borderBottom: '1px solid #ffb300',
-        paddingBottom: '5px',
-        marginBottom: '10px',
-        maxWidth: '250px',
-        fontWeight: 'bold'
-    },
 };
 
 export default ContactUs;
