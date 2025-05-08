@@ -208,7 +208,7 @@ router.route("/profile")
     try {
       const user = await User.findOne({ 
         where: { email: req.user.email },
-        attributes: ['id', 'username', 'email'] // Không trả về password
+        attributes: ['id', 'username', 'email', 'address', 'phone', 'city', 'country'] // Include all needed fields
       });
 
       if (!user) {

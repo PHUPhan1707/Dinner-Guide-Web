@@ -13,9 +13,14 @@ export interface User {
 // Thêm header Authorization với token
 const getAuthHeader = () => {
   const token = localStorage.getItem("token");
+  if (!token) {
+    console.error("No auth token found in localStorage");
+  } else {
+    console.log("Token found:", token.substring(0, 15) + "...");
+  }
   return {
     headers: {
-      Authorization: `Bearer ${token}`,
+      Authorization: token ? `Bearer ${token}` : "",
     },
   };
 };
@@ -38,7 +43,7 @@ export const loginUser = async (email: string, password: string) => {
 
 // Thêm hàm lấy thông tin profile
 export const getUserProfile = async () => {
-  return axios.get(`${API_URL}/profile`, getAuthHeader());
+  return axios.get(`${API_URL}/users/profile`, getAuthHeader());
 };
 
 // Thêm hàm cập nhật profile
@@ -52,7 +57,7 @@ export const updateUserProfile = async (userData: {
   newPassword?: string;
   currentPassword?: string;
 }) => {
-  return axios.put(`${API_URL}/profile`, userData, getAuthHeader());
+  return axios.put(`${API_URL}/users/profile`, userData, getAuthHeader());
 };
 
 // Update user profile

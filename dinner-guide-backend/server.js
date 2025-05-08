@@ -10,6 +10,7 @@ dotenv.config();
 
 // Import routes
 const authRoutes = require("./routes/authRoutes");
+const authProfileRoutes = require("./routes/auth");
 const restaurantRoutes = require("./routes/restaurantRoutes");
 const reservationRoutes = require("./routes/reservationRoutes");
 const reviewRoutes = require("./routes/reviewRoutes");
@@ -41,6 +42,7 @@ syncDatabase();
 
 // Routes
 app.use("/api/auth", authRoutes);
+app.use("/api/auth", authProfileRoutes);
 app.use("/api/restaurants", restaurantRoutes);
 app.use("/api/reservations", reservationRoutes);
 app.use("/api/reviews", reviewRoutes);

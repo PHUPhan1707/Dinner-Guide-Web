@@ -47,29 +47,61 @@ const UserProfileForm = () => {
     useEffect(() => {
         const fetchUserProfile = async () => {
             try {
+                setInitialLoading(true);
+                console.log("Fetching user profile...");
                 const response = await getUserProfile();
+                console.log("User profile response:", response.data);
                 const userData = response.data.user;
 
-                form.reset({
-                    email: userData.email || "",
-                    username: userData.username || "",
-                    city: userData.city || "",
-                    country: userData.country || "",
-                    address: userData.address || "",
-                    phone: userData.phone || "",
-                    currentPassword: "",
-                    newPassword: "",
-                });
-            } catch (error) {
-                console.error("Lỗi khi lấy thông tin người dùng:", error);
-                toast.error("Không thể lấy thông tin người dùng");
+                if (userData) {
+                    console.log("User data received:", userData);
+                    form.reset({
+                        email: userData.email || "",
+                        username: userData.username || "",
+                        city: userData.city || "",
+                        country: userData.country || "",
+                        address: userData.address || "",
+                        phone: userData.phone || "",
+                        currentPassword: "",
+                        newPassword: "",
+                    });
+                } else {
+                    console.error("User data is undefined or null");
+                    toast.error("Could not load user data - No user data returned");
+                }
+            } catch (error: any) {
+                console.error("Error fetching user profile:", error);
+                let errorMessage = "Không thể lấy thông tin người dùng";
+
+                if (error.response) {
+                    console.error("Response status:", error.response.status);
+                    console.error("Response data:", error.response.data);
+                    errorMessage = `Error ${error.response.status}: ${error.response.data?.message || errorMessage}`;
+                } else if (error.request) {
+                    console.error("No response received:", error.request);
+                    errorMessage = "Server did not respond to the request";
+                } else {
+                    console.error("Error message:", error.message);
+                    errorMessage = error.message || errorMessage;
+                }
+
+                toast.error(errorMessage);
+
+                // Check if token is expired or invalid
+                if (error.response?.status === 401 || error.response?.status === 403) {
+                    toast.error("Your session may have expired. Please log in again.");
+                    // Optional: redirect to login page
+                    setTimeout(() => {
+                        navigate("/login");
+                    }, 2000);
+                }
             } finally {
                 setInitialLoading(false);
             }
         };
 
         fetchUserProfile();
-    }, [form]);
+    }, [form, navigate]);
 
     const onSubmit = async (data: UserFormData) => {
         setIsSubmitting(true);

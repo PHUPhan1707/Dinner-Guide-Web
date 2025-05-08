@@ -36,6 +36,74 @@ const upload = multer({
   }
 });
 
+// Get and update user profile
+router.route('/profile')
+  .get(authenticateToken, async (req, res) => {
+    try {
+      const user = await User.findByPk(req.user.id, {
+        attributes: ['id', 'username', 'email', 'address', 'phone', 'city', 'country', 'avatar']
+      });
+
+      if (!user) {
+        return res.status(404).json({ message: 'User not found' });
+      }
+
+      res.json({ user });
+    } catch (error) {
+      console.error('Error fetching user profile:', error);
+      res.status(500).json({ message: 'Server error' });
+    }
+  })
+  .put(authenticateToken, async (req, res) => {
+    try {
+      const { username, email, address, phone, city, country, newPassword, currentPassword } = req.body;
+      
+      const user = await User.findByPk(req.user.id);
+      if (!user) {
+        return res.status(404).json({ message: 'User not found' });
+      }
+
+      // Handle password change
+      if (newPassword) {
+        if (!currentPassword) {
+          return res.status(400).json({ message: 'Current password is required' });
+        }
+
+        const isPasswordValid = await user.comparePassword(currentPassword);
+        if (!isPasswordValid) {
+          return res.status(400).json({ message: 'Current password is incorrect' });
+        }
+      }
+
+      // Update fields
+      if (username) user.username = username;
+      if (email) user.email = email;
+      if (address !== undefined) user.address = address;
+      if (phone !== undefined) user.phone = phone;
+      if (city !== undefined) user.city = city;
+      if (country !== undefined) user.country = country;
+      if (newPassword) user.password = newPassword;
+
+      await user.save();
+
+      res.json({
+        message: 'Profile updated successfully',
+        user: {
+          id: user.id,
+          username: user.username,
+          email: user.email,
+          address: user.address,
+          phone: user.phone,
+          city: user.city,
+          country: user.country
+        }
+      });
+    } catch (error) {
+      console.error('Error updating user profile:', error);
+      res.status(500).json({ message: 'Server error' });
+    }
+  });
+
 // Update user profile
 router.put('/:id', authenticateToken, async (req, res) => {
   try {
