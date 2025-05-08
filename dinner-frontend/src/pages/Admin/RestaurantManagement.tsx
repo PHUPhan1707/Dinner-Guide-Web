@@ -18,7 +18,7 @@ const RestaurantManagement = () => {
   useEffect(() => {
     const token = localStorage.getItem('token');
     const user = localStorage.getItem('user');
-    
+
     if (!token || !user) {
       navigate('/auth');
       return;
@@ -59,14 +59,14 @@ const RestaurantManagement = () => {
       try {
         const img = document.createElement('img');
         const reader = new FileReader();
-        
+
         reader.onload = () => {
           img.src = reader.result as string;
           img.onload = () => {
             const canvas = document.createElement('canvas');
             let width = img.width;
             let height = img.height;
-            
+
             // Calculate new dimensions while maintaining aspect ratio
             const maxSize = 600; // Reduced from 800 to 600
             if (width > height && width > maxSize) {
@@ -76,10 +76,10 @@ const RestaurantManagement = () => {
               width = Math.round((width * maxSize) / height);
               height = maxSize;
             }
-            
+
             canvas.width = width;
             canvas.height = height;
-            
+
             const ctx = canvas.getContext('2d');
             if (!ctx) {
               reject(new Error('Could not get canvas context'));
@@ -89,15 +89,15 @@ const RestaurantManagement = () => {
             // Set image smoothing for better quality at smaller sizes
             ctx.imageSmoothingEnabled = true;
             ctx.imageSmoothingQuality = 'high';
-            
+
             // Draw image with white background to handle transparency
             ctx.fillStyle = '#FFFFFF';
             ctx.fillRect(0, 0, width, height);
             ctx.drawImage(img, 0, 0, width, height);
-            
+
             // Convert to base64 with reduced quality
             const base64 = canvas.toDataURL('image/jpeg', 0.5); // Reduced quality from 0.7 to 0.5
-            
+
             // Check if the base64 string is too large (over 1MB)
             if (base64.length > 1024 * 1024) {
               // If still too large, reduce dimensions further
@@ -113,7 +113,7 @@ const RestaurantManagement = () => {
             }
           };
         };
-        
+
         reader.readAsDataURL(file);
       } catch (error) {
         reject(error);
@@ -147,7 +147,7 @@ const RestaurantManagement = () => {
   };
 
   const handleMenuItemChange = (id: string, field: keyof MenuItem, value: string | number) => {
-    setMenuItems(menuItems.map(item => 
+    setMenuItems(menuItems.map(item =>
       item.id === id ? { ...item, [field]: value } : item
     ));
   };
@@ -178,9 +178,9 @@ const RestaurantManagement = () => {
 
     try {
       // Validate required fields
-      if (!formData.name || !formData.address || !formData.openTime || 
-          !formData.closeTime || !formData.email || !formData.phone || 
-          !formData.description) {
+      if (!formData.name || !formData.address || !formData.openTime ||
+        !formData.closeTime || !formData.email || !formData.phone ||
+        !formData.description) {
         throw new Error('Please fill in all required fields');
       }
 
@@ -219,9 +219,9 @@ const RestaurantManagement = () => {
   // Filter restaurants based on search query
   const filteredRestaurants = useMemo(() => {
     if (!searchQuery) return restaurants;
-    
+
     const query = searchQuery.toLowerCase();
-    return restaurants.filter(restaurant => 
+    return restaurants.filter(restaurant =>
       restaurant.name.toLowerCase().includes(query) ||
       restaurant.description.toLowerCase().includes(query) ||
       restaurant.address.toLowerCase().includes(query) ||
@@ -307,7 +307,7 @@ const RestaurantManagement = () => {
               <h2 className="text-2xl font-bold mb-6">
                 {currentRestaurant ? 'Edit Restaurant' : 'Add New Restaurant'}
               </h2>
-              
+
               <form onSubmit={handleSubmit}>
                 {/* Basic Information */}
                 <div className="grid grid-cols-2 gap-6 mb-6">

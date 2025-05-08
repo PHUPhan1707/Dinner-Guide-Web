@@ -37,7 +37,7 @@ export default function Auth() {
                     ...data.user,
                     isAdmin: email === 'admin@dinnerguide.com'
                 }));
-                
+
                 // Check if user is admin and redirect accordingly
                 if (email === 'admin@dinnerguide.com') {
                     navigate("/admin");
@@ -73,7 +73,7 @@ export default function Auth() {
     return (
         <div className="min-h-screen w-full relative flex items-center justify-center">
             {/* Background Image */}
-            <div 
+            <div
                 className="absolute inset-0 w-full h-full"
                 style={{
                     backgroundImage: `url(${loginBg})`,
@@ -81,7 +81,7 @@ export default function Auth() {
                     backgroundPosition: 'center',
                 }}
             />
-            
+
             {/* Glass Effect Container */}
             <div className="relative w-full max-w-[400px] mx-4">
                 <div className="backdrop-blur-md bg-black/40 p-12 rounded-lg shadow-lg border border-white/20 min-h-[420px] flex flex-col">
@@ -89,7 +89,7 @@ export default function Auth() {
                     <h1 className="text-4xl font-[Newsreader] text-white text-center mb-10">
                         {showVerification ? "Verify Email" : (isSignup ? "Sign Up" : "Login")}
                     </h1>
-                    
+
                     {/* Auth Form */}
                     {showVerification ? (
                         <form onSubmit={handleVerification} className="space-y-6 flex-grow flex flex-col">
@@ -128,7 +128,7 @@ export default function Auth() {
                                     />
                                 </div>
                             )}
-                            
+
                             <div className="relative">
                                 <input
                                     type="email"
@@ -165,12 +165,12 @@ export default function Auth() {
 
                     {/* Toggle Auth Mode */}
                     {!showVerification && (
-                        <button 
-                            onClick={() => setIsSignup(!isSignup)} 
+                        <button
+                            onClick={() => setIsSignup(!isSignup)}
                             className="mt-4 text-white/90 hover:text-white transition-colors w-full text-center font-[Inter] font-normal"
                         >
-                            {isSignup 
-                                ? "Already have an account? Login" 
+                            {isSignup
+                                ? "Already have an account? Login"
                                 : <span>Don't have an account? <span className="text-white">Register</span></span>}
                         </button>
                     )}
