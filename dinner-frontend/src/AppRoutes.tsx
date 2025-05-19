@@ -9,6 +9,7 @@ import RestaurantDetail from "./pages/Restaurant/RestaurantDetail";
 import UserProfilePage from "./pages/UserProfilePage";
 import Settings from "./pages/Admin/Settings";
 import Dashboard from "./pages/Admin/Dashboard";
+import ReviewManagement from "./pages/Admin/ReviewManagement";
 
 const AppRoutes = () => {
     return (
@@ -51,6 +52,7 @@ const AppRoutes = () => {
             <Route path="/admin/restaurants" element={<RestaurantManagement />} />
             <Route path="/admin/dashboard" element={<Dashboard />} />
             <Route path="/admin/settings" element={<Settings />} />
+            <Route path="/admin/reviews" element={<ReviewManagement />} />
 
             {/* User Profile Page */}
             <Route path="/user-profile" element={<UserProfilePage />} />

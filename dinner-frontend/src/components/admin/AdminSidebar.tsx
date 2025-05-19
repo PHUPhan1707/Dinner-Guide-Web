@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { FaHome, FaUtensils, FaTachometerAlt, FaCog, FaSignOutAlt, FaQuestionCircle } from 'react-icons/fa';
+import { FaHome, FaUtensils, FaTachometerAlt, FaCog, FaSignOutAlt, FaQuestionCircle, FaStar } from 'react-icons/fa';
 
 const AdminSidebar = () => {
   const location = useLocation();
@@ -32,9 +32,8 @@ const AdminSidebar = () => {
             <li>
               <Link
                 to="/admin"
-                className={`flex items-center p-3 rounded-lg hover:bg-zinc-800 ${
-                  isActive('/admin') ? 'bg-zinc-800' : ''
-                }`}
+                className={`flex items-center p-3 rounded-lg hover:bg-zinc-800 ${isActive('/admin') ? 'bg-zinc-800' : ''
+                  }`}
               >
                 <FaHome className="mr-3" /> Home
               </Link>
@@ -42,9 +41,8 @@ const AdminSidebar = () => {
             <li>
               <Link
                 to="/admin/restaurants"
-                className={`flex items-center p-3 rounded-lg hover:bg-zinc-800 ${
-                  isActive('/admin/restaurants') ? 'bg-zinc-800' : ''
-                }`}
+                className={`flex items-center p-3 rounded-lg hover:bg-zinc-800 ${isActive('/admin/restaurants') ? 'bg-zinc-800' : ''
+                  }`}
               >
                 <FaUtensils className="mr-3" /> Restaurants
               </Link>
@@ -52,9 +50,8 @@ const AdminSidebar = () => {
             <li>
               <Link
                 to="/admin/dashboard"
-                className={`flex items-center p-3 rounded-lg hover:bg-zinc-800 ${
-                  isActive('/admin/dashboard') ? 'bg-zinc-800' : ''
-                }`}
+                className={`flex items-center p-3 rounded-lg hover:bg-zinc-800 ${isActive('/admin/dashboard') ? 'bg-zinc-800' : ''
+                  }`}
               >
                 <FaTachometerAlt className="mr-3" /> Dashboard
               </Link>
@@ -62,11 +59,19 @@ const AdminSidebar = () => {
             <li>
               <Link
                 to="/admin/settings"
-                className={`flex items-center p-3 rounded-lg hover:bg-zinc-800 ${
-                  isActive('/admin/settings') ? 'bg-zinc-800' : ''
-                }`}
+                className={`flex items-center p-3 rounded-lg hover:bg-zinc-800 ${isActive('/admin/settings') ? 'bg-zinc-800' : ''
+                  }`}
               >
                 <FaCog className="mr-3" /> Settings
+              </Link>
+            </li>
+            <li>
+              <Link
+                to="/admin/reviews"
+                className={`flex items-center p-3 rounded-lg hover:bg-zinc-800 ${isActive('/admin/reviews') ? 'bg-zinc-800' : ''
+                  }`}
+              >
+                <FaStar className="mr-3" /> Review
               </Link>
             </li>
           </ul>
