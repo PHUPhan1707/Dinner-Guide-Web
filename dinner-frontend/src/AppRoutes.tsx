@@ -20,6 +20,7 @@ const AppRoutes = () => {
                 element={
                     <Layout>
                         <HomePage />
+                        <HomePage />
                     </Layout>
                 }
             />
