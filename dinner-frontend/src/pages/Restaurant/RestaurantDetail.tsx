@@ -34,6 +34,7 @@ const RestaurantDetail = () => {
     const [reviewRefreshTrigger, setReviewRefreshTrigger] = useState(0);
     const [showReviewForm, setShowReviewForm] = useState(false);
     const [reviewsUpdating, setReviewsUpdating] = useState(false);
+    const [showMenu, setShowMenu] = useState(false);
 
     useEffect(() => {
         const fetchRestaurantDetail = async () => {
@@ -57,10 +58,10 @@ const RestaurantDetail = () => {
                     phone: restaurantData.phone || "Not updated",
                     email: restaurantData.email || "contact@restaurant.com",
                     openingHours: `${restaurantData.openTime} - ${restaurantData.closeTime}` || "Not updated",
-                    menu: Array.isArray(restaurantData.menu) ? restaurantData.menu.map((item: any) => ({
+                    menu: Array.isArray(restaurantData.MenuItems) ? restaurantData.MenuItems.map((item: any) => ({
                         id: item.id,
                         name: item.name,
-                        price: item.price,
+                        price: Number(item.price),
                         description: item.description || "",
                         image: item.imageUrl || "https://images.unsplash.com/photo-1612874742237-6526221588e3?q=80&w=2071&auto=format&fit=crop"
                     })) : []
@@ -208,19 +209,29 @@ const RestaurantDetail = () => {
                         </div>
 
                         <div className="mt-8">
-                            <h2 className="text-2xl font-semibold mb-4">Featured Menu</h2>
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                {restaurant.menu.map((item) => (
-                                    <div key={item.id} className="bg-gray-50 rounded-lg overflow-hidden shadow">
-                                        <img src={item.image} alt={item.name} className="w-full h-40 object-cover" />
-                                        <div className="p-4">
-                                            <h3 className="text-lg font-semibold">{item.name}</h3>
-                                            <p className="text-gray-600 text-sm mt-1">{item.description}</p>
-                                            <p className="text-orange-600 font-semibold mt-2">{item.price.toLocaleString('vi-VN')} VND</p>
-                                        </div>
-                                    </div>
-                                ))}
+                            <div className="flex justify-between items-center mb-4">
+                                <h2 className="text-2xl font-semibold">Featured Menu</h2>
+                                <Button
+                                    className="bg-orange-500 hover:bg-orange-600 text-white"
+                                    onClick={() => setShowMenu(!showMenu)}
+                                >
+                                    {showMenu ? 'Hide Menu' : 'Show Menu'}
+                                </Button>
                             </div>
+                            {showMenu && (
+                                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                    {restaurant.menu.map((item) => (
+                                        <div key={item.id} className="bg-gray-50 rounded-lg overflow-hidden shadow">
+                                            <img src={item.image} alt={item.name} className="w-full h-40 object-cover" />
+                                            <div className="p-4">
+                                                <h3 className="text-lg font-semibold">{item.name}</h3>
+                                                <p className="text-gray-600 text-sm mt-1">{item.description}</p>
+                                                <p className="text-orange-600 font-semibold mt-2">{item.price.toLocaleString('vi-VN')} VND</p>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
                         </div>
 
                         <div className="mt-8 flex justify-between">

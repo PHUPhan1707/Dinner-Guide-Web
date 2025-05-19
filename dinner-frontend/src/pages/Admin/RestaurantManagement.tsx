@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FaPlus, FaEdit, FaTrash, FaImage, FaHome, FaUtensils, FaWarehouse, FaTachometerAlt, FaCog, FaSignOutAlt, FaSearch, FaQuestionCircle } from 'react-icons/fa';
-import { Restaurant, MenuItem, getAllRestaurants, createRestaurant, updateRestaurant, deleteRestaurant } from '../../api/RestaurantApi';
+import { Restaurant, MenuItem, getAllRestaurants, createRestaurant, updateRestaurant, deleteRestaurant, CUISINES } from '../../api/RestaurantApi';
 import AdminLayout from '../../components/admin/AdminLayout';
 
 const RestaurantManagement = () => {
@@ -13,6 +13,8 @@ const RestaurantManagement = () => {
   const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [isCustomCuisine, setIsCustomCuisine] = useState(false);
+  const [customCuisine, setCustomCuisine] = useState('');
 
   // Check authentication on component mount
   useEffect(() => {
@@ -42,7 +44,12 @@ const RestaurantManagement = () => {
   const fetchRestaurants = async () => {
     try {
       const response = await getAllRestaurants();
-      setRestaurants(response.data);
+      // Map MenuItems -> menu cho đồng nhất với frontend
+      const mapped = response.data.map((r: any) => ({
+        ...r,
+        menu: r.MenuItems || [],
+      }));
+      setRestaurants(mapped);
     } catch (error) {
       console.error('Error fetching restaurants:', error);
       alert('Failed to load restaurants');
@@ -51,7 +58,17 @@ const RestaurantManagement = () => {
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
+    if (name === 'cuisine' && value === 'custom') {
+      setIsCustomCuisine(true);
+      return;
+    }
     setFormData({ ...formData, [name]: value });
+  };
+
+  const handleCustomCuisineChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setCustomCuisine(value);
+    setFormData({ ...formData, cuisine: value });
   };
 
   const processImage = (file: File): Promise<string> => {
@@ -147,9 +164,27 @@ const RestaurantManagement = () => {
   };
 
   const handleMenuItemChange = (id: string, field: keyof MenuItem, value: string | number) => {
-    setMenuItems(menuItems.map(item =>
+    console.log('Changing menu item:', { id, field, value });
+    const updatedItems = menuItems.map(item =>
       item.id === id ? { ...item, [field]: value } : item
-    ));
+    );
+    console.log('Updated menu items:', updatedItems);
+    setMenuItems(updatedItems);
+  };
+
+  const handleMenuItemImageUpload = async (e: React.ChangeEvent<HTMLInputElement>, itemId: string) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      try {
+        const base64 = await processImage(file);
+        setMenuItems(menuItems.map(item =>
+          item.id === itemId ? { ...item, imageUrl: base64 } : item
+        ));
+      } catch (error) {
+        console.error('Error processing menu item image:', error);
+        alert('Failed to process image');
+      }
+    }
   };
 
   const handleDelete = async (id: string) => {
@@ -172,6 +207,15 @@ const RestaurantManagement = () => {
     }
   };
 
+  const handleEdit = (restaurant: Restaurant) => {
+    console.log('Editing restaurant:', restaurant);
+    console.log('Current menu items:', restaurant.menu);
+    setCurrentRestaurant(restaurant);
+    setFormData(restaurant);
+    setMenuItems(restaurant.menu || restaurant.MenuItems || []);
+    setIsModalOpen(true);
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
@@ -184,15 +228,29 @@ const RestaurantManagement = () => {
         throw new Error('Please fill in all required fields');
       }
 
+      // Reset custom cuisine state after submission
+      setIsCustomCuisine(false);
+      setCustomCuisine('');
+
+      console.log('Current menu items before submit:', menuItems);
+
       const restaurantData = {
         ...formData,
-        menu: menuItems,
-        ratingCount: 0,
-        coverImage: formData.coverImage || 'https://via.placeholder.com/400x300' // Fallback image
+        menu: menuItems.map(item => ({
+          id: item.id,
+          name: item.name,
+          imageUrl: item.imageUrl || '',
+          price: Number(item.price)
+        })),
+        ratingCount: currentRestaurant?.ratingCount || 0,
+        coverImage: formData.coverImage || 'https://via.placeholder.com/400x300'
       } as Restaurant;
 
+      console.log('Submitting restaurant data:', restaurantData);
+
       if (currentRestaurant) {
-        await updateRestaurant(currentRestaurant.id, restaurantData);
+        const response = await updateRestaurant(currentRestaurant.id, restaurantData);
+        console.log('Update response:', response);
         alert('Restaurant updated successfully');
       } else {
         const response = await createRestaurant(restaurantData);
@@ -271,18 +329,41 @@ const RestaurantManagement = () => {
               <div className="p-4">
                 <h3 className="text-xl font-semibold mb-2">{restaurant.name}</h3>
                 <p className="text-gray-600 mb-4">{restaurant.description}</p>
+
+                {/* Menu Items Preview */}
+                {restaurant.menu && restaurant.menu.length > 0 && (
+                  <div className="mb-4">
+                    <h4 className="text-sm font-medium text-gray-700 mb-2">Menu Items:</h4>
+                    <div className="grid grid-cols-2 gap-2">
+                      {restaurant.menu.map((item) => (
+                        <div key={item.id} className="flex items-center space-x-2 bg-gray-50 p-2 rounded">
+                          {item.imageUrl && (
+                            <img
+                              src={item.imageUrl}
+                              alt={item.name}
+                              className="w-10 h-10 object-cover rounded"
+                            />
+                          )}
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-medium truncate">{item.name}</p>
+                            <p className="text-xs text-gray-500">{item.price.toLocaleString('vi-VN')}đ</p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
                 <div className="flex justify-between items-center">
                   <div className="text-sm text-gray-500">
                     {restaurant.openTime} - {restaurant.closeTime}
+                    {restaurant.cuisine && (
+                      <span className="ml-2 text-blue-600">• {restaurant.cuisine}</span>
+                    )}
                   </div>
                   <div className="flex space-x-2">
                     <button
-                      onClick={() => {
-                        setCurrentRestaurant(restaurant);
-                        setFormData(restaurant);
-                        setMenuItems(restaurant.menu || []);
-                        setIsModalOpen(true);
-                      }}
+                      onClick={() => handleEdit(restaurant)}
                       className="p-2 text-blue-600 hover:bg-blue-50 rounded-full"
                     >
                       <FaEdit />
@@ -377,6 +458,35 @@ const RestaurantManagement = () => {
                       required
                     />
                   </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">Cuisine Type</label>
+                    <div className="space-y-2">
+                      <select
+                        name="cuisine"
+                        value={isCustomCuisine ? 'custom' : (formData.cuisine || '')}
+                        onChange={handleInputChange}
+                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                      >
+                        <option value="">Select a cuisine type</option>
+                        {CUISINES.map((cuisine) => (
+                          <option key={cuisine} value={cuisine}>
+                            {cuisine}
+                          </option>
+                        ))}
+                        <option value="custom">+ Add New Cuisine Type</option>
+                      </select>
+
+                      {isCustomCuisine && (
+                        <input
+                          type="text"
+                          value={customCuisine}
+                          onChange={handleCustomCuisineChange}
+                          placeholder="Enter new cuisine type"
+                          className="mt-2 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                        />
+                      )}
+                    </div>
+                  </div>
                 </div>
 
                 {/* Description */}
@@ -431,31 +541,71 @@ const RestaurantManagement = () => {
                       Add Item
                     </button>
                   </div>
-                  {menuItems.map((item, index) => (
-                    <div key={item.id} className="grid grid-cols-3 gap-4 mb-4">
-                      <input
-                        type="text"
-                        value={item.name}
-                        onChange={(e) => handleMenuItemChange(item.id, 'name', e.target.value)}
-                        placeholder="Item name"
-                        className="rounded-md border-gray-300"
-                      />
-                      <input
-                        type="number"
-                        value={item.price}
-                        onChange={(e) => handleMenuItemChange(item.id, 'price', parseFloat(e.target.value))}
-                        placeholder="Price"
-                        className="rounded-md border-gray-300"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => setMenuItems(menuItems.filter(i => i.id !== item.id))}
-                        className="text-red-600 hover:bg-red-50 px-2 rounded"
-                      >
-                        Remove
-                      </button>
-                    </div>
-                  ))}
+                  <div className="space-y-4">
+                    {menuItems.map((item) => (
+                      <div key={item.id} className="bg-gray-50 p-4 rounded-lg">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Item Name</label>
+                            <input
+                              type="text"
+                              value={item.name}
+                              onChange={(e) => handleMenuItemChange(item.id, 'name', e.target.value)}
+                              placeholder="Enter item name"
+                              className="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Price (VND)</label>
+                            <input
+                              type="number"
+                              value={item.price}
+                              onChange={(e) => handleMenuItemChange(item.id, 'price', parseFloat(e.target.value))}
+                              placeholder="Enter price"
+                              className="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                            />
+                          </div>
+                        </div>
+
+                        {/* Menu Item Image Upload */}
+                        <div className="mt-2">
+                          <label className="block text-sm font-medium text-gray-700 mb-1">Item Image</label>
+                          <div className="mt-1 flex items-center space-x-4">
+                            <input
+                              type="file"
+                              accept="image/*"
+                              onChange={(e) => handleMenuItemImageUpload(e, item.id)}
+                              className="hidden"
+                              id={`menuItemImage-${item.id}`}
+                            />
+                            <label
+                              htmlFor={`menuItemImage-${item.id}`}
+                              className="cursor-pointer bg-white px-3 py-1 rounded-md border border-gray-300 hover:bg-gray-50"
+                            >
+                              Upload Image
+                            </label>
+                            {item.imageUrl && (
+                              <img
+                                src={item.imageUrl}
+                                alt="Preview"
+                                className="h-10 w-10 object-cover rounded"
+                              />
+                            )}
+                          </div>
+                        </div>
+
+                        <div className="mt-2 flex justify-end">
+                          <button
+                            type="button"
+                            onClick={() => setMenuItems(menuItems.filter(i => i.id !== item.id))}
+                            className="text-red-600 hover:bg-red-50 px-2 py-1 rounded text-sm"
+                          >
+                            Remove Item
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
                 </div>
 
                 {/* Form Actions */}
