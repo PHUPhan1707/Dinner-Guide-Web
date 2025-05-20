@@ -12,12 +12,6 @@ const RestaurantCard = ({ restaurant }: Props) => {
         navigate(`/restaurant/${restaurant.id}`);
     };
 
-    const navigate = useNavigate();
-
-    const handleCardClick = () => {
-        navigate(`/restaurant/${restaurant.id}`);
-    };
-
     return (
         <div
             className="bg-white rounded-lg shadow-md overflow-hidden w-[300px] cursor-pointer hover:shadow-xl transition-shadow duration-300"

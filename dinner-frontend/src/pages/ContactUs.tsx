@@ -25,7 +25,7 @@ const ContactUs = () => {
         };
     }, []);
 
-    const handleSubmit = (e) => {
+    const handleSubmit = (e: React.MouseEvent<HTMLButtonElement>) => {
         e.preventDefault();
         setSubmitted(true);
         setTimeout(() => {

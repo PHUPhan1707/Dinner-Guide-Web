@@ -2,40 +2,19 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { registerUser, loginUser, verifyEmail } from "@/api/UserApi";
 import loginBg from "@/assets/login-bg.jpg";
-import { registerUser, loginUser, verifyEmail } from "@/api/UserApi";
-import loginBg from "@/assets/login-bg.jpg";
 
 export default function Auth() {
     const [username, setUsername] = useState("");
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [verificationCode, setVerificationCode] = useState("");
-    const [verificationCode, setVerificationCode] = useState("");
     const [isSignup, setIsSignup] = useState(false);
-    const [isLoading, setIsLoading] = useState(false);
-    const [showVerification, setShowVerification] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [showVerification, setShowVerification] = useState(false);
     const navigate = useNavigate();
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        setIsLoading(true);
-
-        try {
-            if (isSignup) {
-                const response = await registerUser(username, email, password);
-                if (response.data.requiresVerification) {
-                    setShowVerification(true);
-                    alert(response.data.message);
-                }
-            } else {
-                const { data } = await loginUser(email, password);
-                if (data.requiresVerification) {
-                    setShowVerification(true);
-                    alert(data.message);
-                    return;
-                }
         setIsLoading(true);
 
         try {

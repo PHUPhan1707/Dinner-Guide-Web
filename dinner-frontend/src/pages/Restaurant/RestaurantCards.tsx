@@ -7,7 +7,6 @@ type Props = {
 
 const RestaurantCards = ({ restaurants }: Props) => {
     if (!restaurants || restaurants.length === 0) {
-    if (!restaurants || restaurants.length === 0) {
         return <p className="text-center text-gray-500 mt-6">No restaurants found.</p>;
     }
 

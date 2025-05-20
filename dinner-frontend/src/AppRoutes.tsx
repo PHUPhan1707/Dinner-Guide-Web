@@ -10,6 +10,8 @@ import UserProfilePage from "./pages/UserProfilePage";
 import Settings from "./pages/Admin/Settings";
 import Dashboard from "./pages/Admin/Dashboard";
 import ReviewManagement from "./pages/Admin/ReviewManagement";
+import ContactUs from "./pages/ContactUs";
+import About from "./pages/About";
 
 const AppRoutes = () => {
     return (
@@ -19,7 +21,6 @@ const AppRoutes = () => {
                 path="/"
                 element={
                     <Layout>
-                        <HomePage />
                         <HomePage />
                     </Layout>
                 }
@@ -41,6 +42,26 @@ const AppRoutes = () => {
                 element={
                     <Layout>
                         <RestaurantDetail />
+                    </Layout>
+                }
+            />
+
+            {/* Contact Us Page */}
+            <Route
+                path="/contact"
+                element={
+                    <Layout>
+                        <ContactUs />
+                    </Layout>
+                }
+            />
+
+            {/* About Page */}
+            <Route
+                path="/about"
+                element={
+                    <Layout>
+                        <About />
                     </Layout>
                 }
             />
